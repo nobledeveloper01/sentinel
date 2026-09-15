@@ -7,6 +7,12 @@ project is pre-release, so everything is under Unreleased until v1.0.
 
 ### Added
 
+- **The screen runs on the server too.** The same rules in C#, held to the
+  TypeScript by a fixture of 135 texts — the corpus and texts built from
+  parts — with the verdict and the reasons each was given; broken on purpose
+  and watched to fail. *Abuse model:* a modified client that skips the
+  on-device screen gains nothing, because the server refuses the same text
+  for the same reasons.
 - **What Sentinel knows about you**, on Settings, derived from the state
   itself — the number as a code, the name and who it goes to, how many in
   the circle, how many records, two keys, no location — so the screen cannot

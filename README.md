@@ -417,11 +417,12 @@ apps/mobile/src/transport.ts    the wire; and a server in memory a test can sear
 apps/mobile/src/phrases.ts      every word the app says
 apps/mobile/__tests__/          the contrast pairs; the home to the alert and back;
                                 the circle and the journey; an evening through the reducer
-server/src/Sentinel.Domain/     reach and the escalation plan, in C#
+server/src/Sentinel.Domain/     reach, the escalation plan and the screen, in C#
 server/src/Sentinel.Infrastructure/  the store and the SMS gateway interface
 server/src/Sentinel.Api/        the endpoints; Messages.cs is read by the copy gate
 server/tests/                   parity over the fixture; the server cannot read
-fixtures/reach.json             what the TypeScript said, for the C# to agree with
+fixtures/reach.json             what the TypeScript said about 200 worlds, for the C# to agree with
+fixtures/screen.json            what it said about 135 texts, for the same reason
 scripts/                        the gates: boundary, doc, copy, design, mark, counts, fixtures;
                                 verify-record.py — the export checked with nothing but Python
 docs/adr/                       the eight decisions, and the six things refused
@@ -440,8 +441,8 @@ it.
 including the server-cannot-open proof and the export verified under Python,
 172 app tests including 146 contrast
 pairs, an evening against a server in memory and the cancel a coercer cannot
-perform, 7 server tests including the cannot-read proof and parity over 200
-worlds.**
+perform, 9 server tests including the cannot-read proof, reach parity over
+200 worlds and screen parity over 135 texts.**
 
 | | |
 |---|---|
@@ -458,7 +459,7 @@ worlds.**
 | **3** Safe arrival | The plan, the states, the geofence, the server's timer and the screen that shows the plan before it starts are built and tested; the phone-off gate (R3) needs a phone |
 | **4** Trust surfaces → v1.0 | Duress, the two-finger cancel, the decoy, silent mode, the privacy card derived from state and the signed export are built; organisations, onboarding and the audit on hardware are to build |
 | **5** The reach engine | **Built and property-tested**, ahead of order, because the riskiest surface should have the most tested rule behind it |
-| **6** Content screening | The on-device rules and the corpus are built; the server model and the face check are to build |
+| **6** Content screening | The rules run on the phone and on the server, held to each other by a fixture of 135 texts; the model beyond the rules and the face check need a corpus and a camera |
 | **7** The community layer → v1.1 | Not started, by design: the last thing built, behind three gates and a month in one city |
 | **8** Advisory → v1.2 | The five-language SMS is built; advisory and patrol logging are not |
 

@@ -9,6 +9,7 @@ import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import * as reach from '../packages/domain/src/public/reach.ts';
+import * as screen from '../packages/domain/src/public/screen.ts';
 
 class Gen {
   private s: number;
@@ -83,3 +84,48 @@ for (const s of ['none', 'reported', 'corroborated', 'confirmed', 'verified']) {
 const out = join(import.meta.dirname, '..', 'fixtures', 'reach.json');
 writeFileSync(out, JSON.stringify({ generated: 'scripts/emit-fixtures.ts', counts, worlds }, null, 1) + '\n');
 console.log(`wrote ${worlds.length} worlds: ${JSON.stringify(counts)}`);
+
+// The screen (ADR-0003): the corpus the phone is tested on, plus texts built
+// from parts, each with the verdict the TypeScript gives. The server runs the
+// same rules in C# so a report the phone would refuse is refused there too.
+const corpus = [
+  'A tall man in a black shirt broke into the shop',
+  'It was Mr Adebayo from the next street',
+  'Two Fulani herdsmen were seen near the junction',
+  'The car was LND-234-XY, a blue Toyota',
+  'Call the thief on 08031234567',
+  'A woman wearing hijab ran past',
+  'he was wearing a red cap and jeans',
+  'Chukwuemeka Okafor took the generator',
+  'Okada rider in a yellow jacket, dark skinned',
+  'Oga Musa and his boys did it',
+  'Robbery at the junction by the filling station, around 9pm',
+  'Road blocked at Ojota, traffic backed up to the bridge',
+  'Fire in a shop on the market road, smoke visible from the estate gate',
+  'Gunfire heard near the school, three shots, nobody hurt as far as we know',
+  'Flooding on Allen Avenue, water to the knee',
+];
+const openings = ['Robbery', 'Fire', 'Flooding', 'Road blocked', 'Gunfire heard', 'Accident', 'Crowd gathering', 'Power line down'];
+const places = ['at the junction', 'on Allen Avenue', 'near Ikeja Market', 'by the estate gate', 'at Ojota bridge', 'behind the school'];
+const tails = [
+  '',
+  ', around 9pm',
+  ', a tall man ran off',
+  ', plate ABC 123 DE',
+  ', call 08123456789',
+  ', it was Alhaji Bello',
+  ', he was wearing a blue kaftan',
+  ', two Hausa boys',
+  ', Bola Ahmed saw it',
+  ', nobody hurt',
+];
+const sg = new Gen(99);
+const texts = [...corpus];
+for (let i = 0; i < 120; i++) {
+  texts.push(`${openings[sg.next(openings.length)]} ${places[sg.next(places.length)]}${tails[sg.next(tails.length)]}`);
+}
+const screened = texts.map((text) => ({ text, ...screen.screenText(text) }));
+const okCount = screened.filter((s) => s.ok).length;
+if (okCount === 0 || okCount === screened.length) throw new Error('the screen fixture has to hold both verdicts');
+writeFileSync(join(import.meta.dirname, '..', 'fixtures', 'screen.json'), JSON.stringify({ generated: 'scripts/emit-fixtures.ts', ok: okCount, blocked: screened.length - okCount, texts: screened }, null, 1) + '\n');
+console.log(`wrote ${screened.length} screened texts: ${okCount} ok, ${screened.length - okCount} blocked`);

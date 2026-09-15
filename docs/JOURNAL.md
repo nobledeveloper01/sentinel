@@ -147,3 +147,18 @@ read green over a failing `make ci` and the commit went out that way; the
 next push carries the fix. The helper lives in `test-support/` now, and the
 lesson is the one Tender wrote down: read the exit code, not the line you
 were looking for.
+
+## 2026-09-15, night — the screen, twice
+
+The screen's rules in C#, and a fixture of 135 texts the TypeScript wrote
+with its verdicts. Parity held on the first run; the clothing rule was
+commented out to see the test fail, and it did, on the first text. The
+regexes crossed unchanged except one thing worth writing down: `IgnoreCase`
+is set on every pattern but the capitalised pair, because the capitals are
+the point of that one, and a port that set it everywhere would have made
+every two words a name.
+
+The fixture generator found something too: *Two Fulani herdsmen* is blocked
+for the identifier and *for a name*, because "Two Fulani" is a capitalised
+pair. Right verdict, one reason too many. Left as it is — a second reason
+never hurts a block — and noted here in case it ever decides an appeal.

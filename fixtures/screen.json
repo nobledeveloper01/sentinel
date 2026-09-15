@@ -1,0 +1,881 @@
+{
+ "generated": "scripts/emit-fixtures.ts",
+ "ok": 37,
+ "blocked": 98,
+ "texts": [
+  {
+   "text": "A tall man in a black shirt broke into the shop",
+   "ok": false,
+   "reasons": [
+    "a description of a person",
+    "clothing"
+   ]
+  },
+  {
+   "text": "It was Mr Adebayo from the next street",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Two Fulani herdsmen were seen near the junction",
+   "ok": false,
+   "reasons": [
+    "an ethnic or religious identifier",
+    "a name"
+   ]
+  },
+  {
+   "text": "The car was LND-234-XY, a blue Toyota",
+   "ok": false,
+   "reasons": [
+    "a vehicle plate"
+   ]
+  },
+  {
+   "text": "Call the thief on 08031234567",
+   "ok": false,
+   "reasons": [
+    "a phone number"
+   ]
+  },
+  {
+   "text": "A woman wearing hijab ran past",
+   "ok": false,
+   "reasons": [
+    "clothing"
+   ]
+  },
+  {
+   "text": "he was wearing a red cap and jeans",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Chukwuemeka Okafor took the generator",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Okada rider in a yellow jacket, dark skinned",
+   "ok": false,
+   "reasons": [
+    "a description of a person",
+    "clothing"
+   ]
+  },
+  {
+   "text": "Oga Musa and his boys did it",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Robbery at the junction by the filling station, around 9pm",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Road blocked at Ojota, traffic backed up to the bridge",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Fire in a shop on the market road, smoke visible from the estate gate",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Gunfire heard near the school, three shots, nobody hurt as far as we know",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Flooding on Allen Avenue, water to the knee",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Flooding on Allen Avenue, he was wearing a blue kaftan",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Flooding near Ikeja Market, he was wearing a blue kaftan",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Robbery near Ikeja Market, Bola Ahmed saw it",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Flooding at Ojota bridge, it was Alhaji Bello",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Flooding at the junction, he was wearing a blue kaftan",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Accident behind the school, Bola Ahmed saw it",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Power line down near Ikeja Market, nobody hurt",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Flooding at Ojota bridge, plate ABC 123 DE",
+   "ok": false,
+   "reasons": [
+    "a vehicle plate"
+   ]
+  },
+  {
+   "text": "Accident at the junction, plate ABC 123 DE",
+   "ok": false,
+   "reasons": [
+    "a vehicle plate"
+   ]
+  },
+  {
+   "text": "Gunfire heard by the estate gate, a tall man ran off",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Gunfire heard near Ikeja Market, two Hausa boys",
+   "ok": false,
+   "reasons": [
+    "an ethnic or religious identifier"
+   ]
+  },
+  {
+   "text": "Road blocked on Allen Avenue, nobody hurt",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Road blocked by the estate gate, nobody hurt",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Robbery at Ojota bridge, around 9pm",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Power line down behind the school, Bola Ahmed saw it",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Robbery near Ikeja Market, Bola Ahmed saw it",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Crowd gathering by the estate gate, around 9pm",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Flooding behind the school, Bola Ahmed saw it",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Gunfire heard on Allen Avenue, nobody hurt",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Flooding on Allen Avenue, plate ABC 123 DE",
+   "ok": false,
+   "reasons": [
+    "a vehicle plate"
+   ]
+  },
+  {
+   "text": "Fire at the junction, around 9pm",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Crowd gathering by the estate gate, call 08123456789",
+   "ok": false,
+   "reasons": [
+    "a phone number"
+   ]
+  },
+  {
+   "text": "Fire by the estate gate, two Hausa boys",
+   "ok": false,
+   "reasons": [
+    "an ethnic or religious identifier"
+   ]
+  },
+  {
+   "text": "Gunfire heard by the estate gate, Bola Ahmed saw it",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Fire on Allen Avenue, two Hausa boys",
+   "ok": false,
+   "reasons": [
+    "an ethnic or religious identifier"
+   ]
+  },
+  {
+   "text": "Power line down at the junction, nobody hurt",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Accident behind the school, plate ABC 123 DE",
+   "ok": false,
+   "reasons": [
+    "a vehicle plate"
+   ]
+  },
+  {
+   "text": "Flooding behind the school, he was wearing a blue kaftan",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Gunfire heard at Ojota bridge, call 08123456789",
+   "ok": false,
+   "reasons": [
+    "a phone number"
+   ]
+  },
+  {
+   "text": "Gunfire heard on Allen Avenue, it was Alhaji Bello",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Robbery on Allen Avenue, it was Alhaji Bello",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Road blocked at Ojota bridge, two Hausa boys",
+   "ok": false,
+   "reasons": [
+    "an ethnic or religious identifier"
+   ]
+  },
+  {
+   "text": "Flooding on Allen Avenue, call 08123456789",
+   "ok": false,
+   "reasons": [
+    "a phone number"
+   ]
+  },
+  {
+   "text": "Crowd gathering at Ojota bridge, nobody hurt",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Flooding on Allen Avenue, he was wearing a blue kaftan",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Road blocked behind the school, a tall man ran off",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Fire near Ikeja Market, call 08123456789",
+   "ok": false,
+   "reasons": [
+    "a phone number"
+   ]
+  },
+  {
+   "text": "Flooding on Allen Avenue, it was Alhaji Bello",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Gunfire heard behind the school, plate ABC 123 DE",
+   "ok": false,
+   "reasons": [
+    "a vehicle plate"
+   ]
+  },
+  {
+   "text": "Fire behind the school, nobody hurt",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Road blocked near Ikeja Market, it was Alhaji Bello",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Road blocked near Ikeja Market, it was Alhaji Bello",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Road blocked by the estate gate, two Hausa boys",
+   "ok": false,
+   "reasons": [
+    "an ethnic or religious identifier"
+   ]
+  },
+  {
+   "text": "Flooding near Ikeja Market, around 9pm",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Power line down at the junction, two Hausa boys",
+   "ok": false,
+   "reasons": [
+    "an ethnic or religious identifier"
+   ]
+  },
+  {
+   "text": "Robbery at the junction, around 9pm",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Gunfire heard at the junction, he was wearing a blue kaftan",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Road blocked at Ojota bridge, nobody hurt",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Crowd gathering on Allen Avenue, a tall man ran off",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Accident by the estate gate",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Crowd gathering at the junction",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Power line down at the junction, Bola Ahmed saw it",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Fire by the estate gate, Bola Ahmed saw it",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Crowd gathering by the estate gate, Bola Ahmed saw it",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Robbery behind the school, it was Alhaji Bello",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Robbery by the estate gate, nobody hurt",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Fire by the estate gate, around 9pm",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Road blocked at Ojota bridge, call 08123456789",
+   "ok": false,
+   "reasons": [
+    "a phone number"
+   ]
+  },
+  {
+   "text": "Accident on Allen Avenue, around 9pm",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Fire behind the school, he was wearing a blue kaftan",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Accident at the junction, call 08123456789",
+   "ok": false,
+   "reasons": [
+    "a phone number"
+   ]
+  },
+  {
+   "text": "Robbery at Ojota bridge, it was Alhaji Bello",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Robbery on Allen Avenue, it was Alhaji Bello",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Accident on Allen Avenue, Bola Ahmed saw it",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Robbery by the estate gate, call 08123456789",
+   "ok": false,
+   "reasons": [
+    "a phone number"
+   ]
+  },
+  {
+   "text": "Power line down at the junction, two Hausa boys",
+   "ok": false,
+   "reasons": [
+    "an ethnic or religious identifier"
+   ]
+  },
+  {
+   "text": "Crowd gathering behind the school, he was wearing a blue kaftan",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Gunfire heard near Ikeja Market, call 08123456789",
+   "ok": false,
+   "reasons": [
+    "a phone number"
+   ]
+  },
+  {
+   "text": "Crowd gathering on Allen Avenue, it was Alhaji Bello",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Fire at Ojota bridge, Bola Ahmed saw it",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Road blocked at the junction",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Robbery at the junction, around 9pm",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Flooding near Ikeja Market, two Hausa boys",
+   "ok": false,
+   "reasons": [
+    "an ethnic or religious identifier"
+   ]
+  },
+  {
+   "text": "Robbery behind the school, nobody hurt",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Fire at the junction, call 08123456789",
+   "ok": false,
+   "reasons": [
+    "a phone number"
+   ]
+  },
+  {
+   "text": "Robbery at the junction",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Gunfire heard on Allen Avenue, Bola Ahmed saw it",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Gunfire heard near Ikeja Market, it was Alhaji Bello",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Accident near Ikeja Market, nobody hurt",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Fire by the estate gate, call 08123456789",
+   "ok": false,
+   "reasons": [
+    "a phone number"
+   ]
+  },
+  {
+   "text": "Fire on Allen Avenue, call 08123456789",
+   "ok": false,
+   "reasons": [
+    "a phone number"
+   ]
+  },
+  {
+   "text": "Flooding at Ojota bridge, it was Alhaji Bello",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Fire by the estate gate, he was wearing a blue kaftan",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Fire at the junction, he was wearing a blue kaftan",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Accident on Allen Avenue, a tall man ran off",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Robbery on Allen Avenue, plate ABC 123 DE",
+   "ok": false,
+   "reasons": [
+    "a vehicle plate"
+   ]
+  },
+  {
+   "text": "Accident by the estate gate, it was Alhaji Bello",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Road blocked behind the school, two Hausa boys",
+   "ok": false,
+   "reasons": [
+    "an ethnic or religious identifier"
+   ]
+  },
+  {
+   "text": "Gunfire heard near Ikeja Market, nobody hurt",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Power line down near Ikeja Market, he was wearing a blue kaftan",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Robbery by the estate gate, plate ABC 123 DE",
+   "ok": false,
+   "reasons": [
+    "a vehicle plate"
+   ]
+  },
+  {
+   "text": "Crowd gathering on Allen Avenue, Bola Ahmed saw it",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Fire at the junction",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Power line down on Allen Avenue, plate ABC 123 DE",
+   "ok": false,
+   "reasons": [
+    "a vehicle plate"
+   ]
+  },
+  {
+   "text": "Robbery at Ojota bridge, call 08123456789",
+   "ok": false,
+   "reasons": [
+    "a phone number"
+   ]
+  },
+  {
+   "text": "Flooding at the junction, call 08123456789",
+   "ok": false,
+   "reasons": [
+    "a phone number"
+   ]
+  },
+  {
+   "text": "Fire at the junction, call 08123456789",
+   "ok": false,
+   "reasons": [
+    "a phone number"
+   ]
+  },
+  {
+   "text": "Fire at the junction, two Hausa boys",
+   "ok": false,
+   "reasons": [
+    "an ethnic or religious identifier"
+   ]
+  },
+  {
+   "text": "Crowd gathering on Allen Avenue, it was Alhaji Bello",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Robbery by the estate gate",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Fire by the estate gate, he was wearing a blue kaftan",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Accident near Ikeja Market",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Road blocked at Ojota bridge, a tall man ran off",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Robbery near Ikeja Market, a tall man ran off",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Flooding at Ojota bridge, a tall man ran off",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Gunfire heard on Allen Avenue, nobody hurt",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Flooding near Ikeja Market, around 9pm",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Crowd gathering at Ojota bridge, plate ABC 123 DE",
+   "ok": false,
+   "reasons": [
+    "a vehicle plate"
+   ]
+  },
+  {
+   "text": "Flooding behind the school, two Hausa boys",
+   "ok": false,
+   "reasons": [
+    "an ethnic or religious identifier"
+   ]
+  },
+  {
+   "text": "Power line down by the estate gate, he was wearing a blue kaftan",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Robbery at Ojota bridge, it was Alhaji Bello",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Accident at Ojota bridge, around 9pm",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Road blocked at Ojota bridge, two Hausa boys",
+   "ok": false,
+   "reasons": [
+    "an ethnic or religious identifier"
+   ]
+  },
+  {
+   "text": "Robbery near Ikeja Market, Bola Ahmed saw it",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  },
+  {
+   "text": "Gunfire heard at the junction, he was wearing a blue kaftan",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Fire on Allen Avenue, plate ABC 123 DE",
+   "ok": false,
+   "reasons": [
+    "a vehicle plate"
+   ]
+  },
+  {
+   "text": "Accident by the estate gate, nobody hurt",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Power line down on Allen Avenue, a tall man ran off",
+   "ok": false,
+   "reasons": [
+    "a description of a person"
+   ]
+  },
+  {
+   "text": "Road blocked near Ikeja Market, around 9pm",
+   "ok": true,
+   "reasons": []
+  },
+  {
+   "text": "Road blocked at Ojota bridge, it was Alhaji Bello",
+   "ok": false,
+   "reasons": [
+    "a name"
+   ]
+  }
+ ]
+}
