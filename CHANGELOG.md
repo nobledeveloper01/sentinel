@@ -7,6 +7,19 @@ project is pre-release, so everything is under Unreleased until v1.0.
 
 ### Added
 
+- **Coercion is a use case (ADR-0008), on the screen.** Cancelling takes two
+  fingers held for two seconds — one finger, or two lifted early, cancels
+  nothing — and then the PIN. The duress PIN at that step cancels on the
+  screen and tells the server *under duress*; a wrong PIN says so and nothing
+  else. Holding the alert button sends silently: nothing on the screen
+  changes, the alert reaches the server, and the settings button asks for
+  the PIN before showing it — the real PIN reveals the alert, the duress PIN
+  opens the idle home, records *opened under duress* and tells the server.
+  Two PINs in Settings, four to six digits, refused if they are the same,
+  hashed before anything else sees them. With no PIN set the hold alone
+  cancels, which is still not a reach-over. *Abuse model:* a coercer holding
+  the phone sees an idle app or a normal cancel; the circle is told the
+  truth either way.
 - **The alert leaves the phone.** One envelope per accepted circle member,
   sealed to her key fetched from the server by phone hash; an SMS the server
   may send in her language with the position as a link and never a

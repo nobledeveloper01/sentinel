@@ -43,6 +43,8 @@ public sealed class AlertRow
     public long AtMinutes { get; set; }
     public bool Cancelled { get; set; }
     public bool CancelledUnderDuress { get; set; }
+    /// <summary>The phone was opened with the duress PIN while this alert ran; the circle is told and the screen was not.</summary>
+    public bool OpenedUnderDuress { get; set; }
 }
 
 public sealed class EnvelopeRow

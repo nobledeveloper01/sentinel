@@ -19,6 +19,7 @@ export function HomeScreen({
   state,
   card,
   onPanic,
+  onPanicSilent,
   onJourney,
   onCircle,
   onSettings,
@@ -27,6 +28,7 @@ export function HomeScreen({
   /** A journey under way, above the fold, or nothing. */
   card?: ReactNode;
   onPanic: () => void;
+  onPanicSilent: () => void;
   onJourney: () => void;
   onCircle: () => void;
   onSettings: () => void;
@@ -54,10 +56,13 @@ export function HomeScreen({
           </Text>
         </Glass>
         <Gap h={space.l} />
-        <PrimaryAction label={t.panic} size="panic" onPress={onPanic} accessibilityHint={t.panicHint} />
+        <PrimaryAction label={t.panic} size="panic" onPress={onPanic} onLongPress={onPanicSilent} accessibilityHint={t.panicHint} />
         <Gap h={space.s} />
         <Text variant="secondary" tone="secondary" style={styles.centre}>
           {t.panicHint}
+        </Text>
+        <Text variant="small" tone="secondary" style={styles.centre}>
+          {t.panicHold}
         </Text>
         <Gap h={space.l} />
         {card ? (

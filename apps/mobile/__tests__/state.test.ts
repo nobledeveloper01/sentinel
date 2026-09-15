@@ -47,6 +47,22 @@ describe('the app state', () => {
     expect(s.alert?.events[0]).toMatchObject({ kind: 'triggered', path: 'journey' });
   });
 
+  test('a silent panic hides the alert from the screen; the real PIN reveals it; the duress PIN hides it again and records that', () => {
+    let s = run([{ type: 'panic', now: 10, path: 'screen-held', silent: true }]);
+    expect(s.hidden).toBe(true);
+    s = reduce(s, { type: 'reveal' });
+    expect(s.hidden).toBe(false);
+    s = reduce(s, { type: 'openedUnderDuress', now: 11 });
+    expect(s.hidden).toBe(true);
+    expect(s.alert!.events.at(-1)).toEqual({ kind: 'openedUnderDuress', at: 11 });
+    expect(A.isOver(s.alert!)).toBe(false);
+  });
+
+  test('two PINs that are the same are refused by the reducer too', () => {
+    const s = run([{ type: 'pins', pins: { realHash: 'x', duressHash: 'x' } }]);
+    expect(s.pins).toBeNull();
+  });
+
   test('two alerts in the same minute do not share an id', () => {
     let s = run([{ type: 'panic', now: 10, path: 'screen', silent: false }]);
     const first = s.alert!.id;

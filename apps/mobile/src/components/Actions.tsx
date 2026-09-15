@@ -13,12 +13,14 @@ export function PrimaryAction({
   label,
   size = 'standard',
   onPress,
+  onLongPress,
   disabled,
   accessibilityHint,
 }: {
   label: string;
   size?: keyof typeof target;
   onPress?: PressableProps['onPress'];
+  onLongPress?: PressableProps['onLongPress'];
   disabled?: boolean;
   accessibilityHint?: string;
 }) {
@@ -31,6 +33,8 @@ export function PrimaryAction({
       accessibilityState={{ disabled: !!disabled }}
       disabled={disabled}
       onPress={onPress}
+      onLongPress={onLongPress}
+      delayLongPress={1500}
       style={({ pressed }) => [styles.primary, { minHeight: target[size], opacity: disabled ? 0.5 : pressed ? 0.85 : 1 }]}
     >
       <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 100 100">

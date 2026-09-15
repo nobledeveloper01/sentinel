@@ -1,4 +1,4 @@
-import { alert as A, circle as C, journey as J } from '@sentinel/domain';
+import { alert as A, circle as C, duress as D, journey as J } from '@sentinel/domain';
 
 /**
  * Everything the app holds, and the one function that changes it. Pure, so
@@ -30,6 +30,9 @@ export interface AppState {
   /** Display names the user typed, by phone hash. Never sent anywhere. */
   readonly names: Readonly<Record<string, string>>;
   readonly alert: A.AlertRecord | null;
+  /** The alert is running and the screen shows nothing of it: sent silently, or opened under duress. */
+  readonly hidden: boolean;
+  readonly pins: D.Pins | null;
   readonly journey: { readonly plan: J.Journey; readonly confirmed: boolean } | null;
   readonly past: ReadonlyArray<A.AlertRecord>;
   /** Members the last alert could not be sealed to — the server has no key for them. */
@@ -43,6 +46,8 @@ export const INITIAL: AppState = {
   circle: C.EMPTY,
   names: {},
   alert: null,
+  hidden: false,
+  pins: null,
   journey: null,
   past: [],
   unreachable: [],
@@ -53,6 +58,9 @@ export type Action =
   | { readonly type: 'me'; readonly me: Me }
   | { readonly type: 'pref'; readonly key: keyof Prefs; readonly on: boolean }
   | { readonly type: 'unreachable'; readonly hashes: ReadonlyArray<string> }
+  | { readonly type: 'pins'; readonly pins: D.Pins }
+  | { readonly type: 'reveal' }
+  | { readonly type: 'openedUnderDuress'; readonly now: number }
   | { readonly type: 'invite'; readonly hash: string; readonly name: string; readonly now: number }
   | { readonly type: 'accepted'; readonly hash: string; readonly language: C.Language; readonly now: number }
   | { readonly type: 'remove'; readonly hash: string }
@@ -73,6 +81,13 @@ export function reduce(s: AppState, a: Action): AppState {
       return { ...s, prefs: { ...s.prefs, [a.key]: a.on } };
     case 'unreachable':
       return { ...s, unreachable: a.hashes };
+    case 'pins':
+      return D.validPins(a.pins) ? { ...s, pins: a.pins } : s;
+    case 'reveal':
+      return { ...s, hidden: false };
+    case 'openedUnderDuress':
+      // The decoy: the screen stays idle; the record and the circle know.
+      return s.alert ? { ...s, hidden: true, alert: A.append(s.alert, { kind: 'openedUnderDuress', at: a.now }) } : s;
     case 'invite':
       return { ...s, circle: C.invite(s.circle, a.hash, a.now), names: { ...s.names, [a.hash]: a.name } };
     case 'accepted':
@@ -88,6 +103,8 @@ export function reduce(s: AppState, a: Action): AppState {
         ...s,
         screen: 'home',
         unreachable: [],
+        // Silent: the alert runs and the screen shows nothing of it (ADR-0008).
+        hidden: a.silent,
         // Two alerts in one minute must not share an id: the second would overwrite the first on the server.
         alert: { id: `${a.now}-${s.past.length + 1}`, events: [{ kind: 'triggered', at: a.now, path: a.path, silent: a.silent, drill: false }] },
       };
@@ -96,7 +113,7 @@ export function reduce(s: AppState, a: Action): AppState {
     case 'cancelAlert': {
       if (!s.alert) return s;
       const done = A.append(s.alert, { kind: 'cancelled', at: a.now, underDuress: a.underDuress });
-      return { ...s, alert: null, past: [...s.past, done] };
+      return { ...s, alert: null, hidden: false, past: [...s.past, done] };
     }
     case 'startJourney':
       return { ...s, screen: 'home', journey: { plan: a.journey, confirmed: false } };
@@ -110,7 +127,7 @@ export function reduce(s: AppState, a: Action): AppState {
         id: `${a.now}-${s.past.length + 1}`,
         events: [{ kind: 'triggered', at: a.now, path: 'journey', silent: false, drill: false }],
       };
-      return { ...s, journey: null, alert };
+      return { ...s, journey: null, alert, hidden: false };
     }
   }
 }

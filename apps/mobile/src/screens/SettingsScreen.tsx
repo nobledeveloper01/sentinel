@@ -9,6 +9,8 @@ import { useColours } from '../design/theme';
 import { radius, space, target, typeScale } from '../design/tokens';
 import { t } from '../phrases';
 import type { Prefs } from '../state';
+import { pinHash } from '@sentinel/crypto';
+import { duress as D } from '@sentinel/domain';
 
 /**
  * Who the circle knows me as, and the floor: plain surfaces, less motion,
@@ -20,6 +22,7 @@ export function SettingsScreen({
   prefs,
   onSave,
   onPref,
+  onPins,
   onBack,
 }: {
   phone: string;
@@ -27,8 +30,13 @@ export function SettingsScreen({
   prefs: Prefs;
   onSave: (phone: string, name: string) => void;
   onPref: (key: keyof Prefs, on: boolean) => void;
+  onPins: (pins: D.Pins) => void;
   onBack: () => void;
 }) {
+  const [pin1, setPin1] = useState('');
+  const [pin2, setPin2] = useState('');
+  const pins: D.Pins = { realHash: pinHash(pin1), duressHash: pinHash(pin2) };
+  const pinsOk = /^\d{4,6}$/.test(pin1) && /^\d{4,6}$/.test(pin2) && D.validPins(pins) && pin1 !== pin2;
   const insets = useSafeAreaInsets();
   const c = useColours();
   const [p, setP] = useState(phone);
@@ -74,6 +82,26 @@ export function SettingsScreen({
             );
           })}
         </Glass>
+        <Gap />
+        <Text variant="title">{t.pin}</Text>
+        <Gap h={space.xs} />
+        <Text variant="secondary" tone="secondary">
+          {t.pinsHint}
+        </Text>
+        <Gap h={space.s} />
+        <TextInput testID="pin1" value={pin1} onChangeText={setPin1} keyboardType="number-pad" secureTextEntry placeholder={t.pin} placeholderTextColor={c.textSecondary} accessibilityLabel={t.pin} style={input} />
+        <Gap h={space.s} />
+        <TextInput testID="pin2" value={pin2} onChangeText={setPin2} keyboardType="number-pad" secureTextEntry placeholder={t.duressPin} placeholderTextColor={c.textSecondary} accessibilityLabel={t.duressPin} style={input} />
+        <Gap h={space.s} />
+        <SecondaryAction
+          label={t.savePins}
+          disabled={!pinsOk}
+          onPress={() => {
+            onPins(pins);
+            setPin1('');
+            setPin2('');
+          }}
+        />
         <Gap />
         <SecondaryAction label={t.back} onPress={onBack} />
       </ScrollView>

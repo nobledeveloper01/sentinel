@@ -61,4 +61,13 @@ export const t = {
   save: 'Save',
   notSealed: 'could not be reached: their phone has not joined Sentinel yet',
   noPosition: 'Sent without a position. This phone had no fix.',
+  enterPin: 'Your PIN',
+  pin: 'PIN',
+  duressPin: 'Duress PIN',
+  pinsHint: 'Two PINs, four to six digits, different from each other. The second one opens a screen that looks idle and tells your circle you were made to.',
+  savePins: 'Save PINs',
+  holdToCancel: 'Hold here with two fingers',
+  panicHold: 'Hold the alert button to send silently: nothing on this screen changes.',
+  reveal: 'Show',
+  wrongPin: 'That is not your PIN.',
 } as const;

@@ -58,6 +58,9 @@ export interface MemoryServer extends Transport {
   readonly keys: Map<string, string>;
   readonly alerts: Map<string, HeldAlert>;
   readonly circles: CircleRow[];
+  /** Alert id → cancelled under duress, as the phone told the server. */
+  readonly cancels: Map<string, boolean>;
+  readonly openedUnderDuress: Set<string>;
   /** The invitee's phone accepting, which only her phone can do. */
   accept(owner: string, withPhoneHash: string, language: string): void;
   /** Every byte the server has been handed, for a test to search. */
@@ -70,6 +73,8 @@ export function memoryTransport(): MemoryServer {
   const keys = new Map<string, string>();
   const alerts = new Map<string, HeldAlert>();
   const circles: CircleRow[] = [];
+  const cancels = new Map<string, boolean>();
+  const openedUnderDuress = new Set<string>();
   let refusing = false;
   let sms = true;
   const held: string[] = [];
@@ -78,6 +83,8 @@ export function memoryTransport(): MemoryServer {
     keys,
     alerts,
     circles,
+    cancels,
+    openedUnderDuress,
     accept(owner, withPhoneHash, language) {
       const row = circles.find((c) => c.owner === owner && c.withPhoneHash === withPhoneHash);
       if (row) {
@@ -136,7 +143,16 @@ export function memoryTransport(): MemoryServer {
         alerts.set(b.id, { ...b, attempts });
         return reply(200, { id: b.id });
       }
-      if (/^\/alerts\/.+\/cancel$/.test(path)) return reply(200);
+      const cancel = /^\/alerts\/(.+)\/cancel$/.exec(path);
+      if (cancel) {
+        cancels.set(cancel[1]!, (body as { underDuress: boolean }).underDuress);
+        return reply(200);
+      }
+      const duress = /^\/alerts\/(.+)\/duress$/.exec(path);
+      if (duress) {
+        openedUnderDuress.add(duress[1]!);
+        return reply(200);
+      }
       return reply(404);
     },
   };

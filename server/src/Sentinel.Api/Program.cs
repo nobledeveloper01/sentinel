@@ -113,11 +113,19 @@ app.MapGet("/alerts/{id}", async (string id, SentinelDbContext db, CancellationT
     var envelopes = await db.Envelopes.Where(e => e.Alert == id).Select(e => new { e.ToPhoneHash, From = Convert.ToBase64String(e.FromKey), Nonce = Convert.ToBase64String(e.Nonce), Ciphertext = Convert.ToBase64String(e.Ciphertext) }).ToListAsync(ct);
     var attempts = await db.Attempts.Where(t => t.Alert == id).Select(t => new { t.Channel, t.ToPhoneHash, t.Outcome, t.AtMinutes }).ToListAsync(ct);
     var acks = await db.Acknowledgements.Where(k => k.Alert == id).Select(k => new { k.ByPhoneHash, k.AtMinutes }).ToListAsync(ct);
-    return Results.Ok(new { a.Id, a.From, a.AtMinutes, a.Cancelled, a.CancelledUnderDuress, envelopes, attempts, acknowledgements = acks });
+    return Results.Ok(new { a.Id, a.From, a.AtMinutes, a.Cancelled, a.CancelledUnderDuress, a.OpenedUnderDuress, envelopes, attempts, acknowledgements = acks });
 });
 app.MapPost("/alerts/{id}/ack", async (string id, Acknowledge req, SentinelDbContext db, CancellationToken ct) =>
 {
     db.Acknowledgements.Add(new AcknowledgementRow { Alert = id, ByPhoneHash = req.By, AtMinutes = req.AtMinutes });
+    await db.SaveChangesAsync(ct);
+    return Results.Ok();
+});
+app.MapPost("/alerts/{id}/duress", async (string id, SentinelDbContext db, CancellationToken ct) =>
+{
+    var a = await db.Alerts.FindAsync([id], ct);
+    if (a is null) return Results.NotFound();
+    a.OpenedUnderDuress = true;
     await db.SaveChangesAsync(ct);
     return Results.Ok();
 });

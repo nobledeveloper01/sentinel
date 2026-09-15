@@ -3,7 +3,7 @@ import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { phoneHash } from '@sentinel/crypto';
-import { alert as A, circle as C, journey as J } from '@sentinel/domain';
+import { alert as A, circle as C, duress as D, journey as J } from '@sentinel/domain';
 
 import { JourneyCard } from './components/JourneyCard';
 import { Mesh } from './components/Mesh';
@@ -13,6 +13,7 @@ import { AlertScreen } from './screens/AlertScreen';
 import { CircleScreen } from './screens/CircleScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { JourneyScreen } from './screens/JourneyScreen';
+import { LockScreen } from './screens/LockScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { defaultServices, type Services } from './services';
 import { INITIAL, reduce, sharedJourneys } from './state';
@@ -47,6 +48,9 @@ function useMinute(now: () => number): number {
 export function Root({ services, state: s, dispatch }: { services: Services; state: ReturnType<typeof reduce>; dispatch: (a: Parameters<typeof reduce>[1]) => void }) {
   const { isDark } = useTheme();
   const now = useMinute(services.now);
+  // A hidden alert is behind the PIN: the settings button asks for it first.
+  const [locked, setLocked] = useState(false);
+  const [wrongPin, setWrongPin] = useState(false);
   const circleNames = s.circle.members.map((m) => ({ hash: m.with, name: s.names[m.with] ?? m.with }));
   const me = { ...s.me, keys: services.keys };
 
@@ -94,18 +98,46 @@ export function Root({ services, state: s, dispatch }: { services: Services; sta
     };
   }, [onCircle, s.me.id]);
 
+  const running = s.alert !== null && !A.isOver(s.alert);
   let screen;
-  if (s.alert && !A.isOver(s.alert)) {
+  if (running && !s.hidden) {
     screen = (
       <AlertScreen
         record={s.alert}
         circle={circleNames}
         unreachable={s.unreachable}
+        pins={s.pins}
         state="Lagos"
         nowMinutes={now}
-        onCancel={() => {
-          void services.transport.post(`/alerts/${s.alert!.id}/cancel`, { underDuress: false });
-          dispatch({ type: 'cancelAlert', now, underDuress: false });
+        onCancel={(underDuress) => {
+          void services.transport.post(`/alerts/${s.alert!.id}/cancel`, { underDuress });
+          dispatch({ type: 'cancelAlert', now, underDuress });
+        }}
+      />
+    );
+  } else if (locked) {
+    screen = (
+      <LockScreen
+        wrong={wrongPin}
+        onBack={() => {
+          setLocked(false);
+          setWrongPin(false);
+        }}
+        onEntered={(hash) => {
+          const face = s.pins ? D.faceFor(s.pins, hash) : 'real';
+          if (face === 'real') {
+            setLocked(false);
+            setWrongPin(false);
+            dispatch(running ? { type: 'reveal' } : { type: 'go', to: 'settings' });
+          } else if (face === 'decoy') {
+            // The decoy: back to the idle home, the circle told, the screen not.
+            setLocked(false);
+            setWrongPin(false);
+            if (running) void services.transport.post(`/alerts/${s.alert.id}/duress`, {});
+            dispatch(running ? { type: 'openedUnderDuress', now } : { type: 'go', to: 'home' });
+          } else {
+            setWrongPin(true);
+          }
         }}
       />
     );
@@ -153,6 +185,7 @@ export function Root({ services, state: s, dispatch }: { services: Services; sta
           dispatch({ type: 'go', to: 'home' });
         }}
         onPref={(key, on) => dispatch({ type: 'pref', key, on })}
+        onPins={(pins) => dispatch({ type: 'pins', pins })}
         onBack={() => dispatch({ type: 'go', to: 'home' })}
       />
     );
@@ -162,9 +195,10 @@ export function Root({ services, state: s, dispatch }: { services: Services; sta
         state="Lagos"
         card={s.journey ? <JourneyCard journey={s.journey.plan} nowMinutes={now} onArrived={() => dispatch({ type: 'arrived' })} /> : null}
         onPanic={() => dispatch({ type: 'panic', now, path: 'screen', silent: false })}
+        onPanicSilent={() => dispatch({ type: 'panic', now, path: 'screen-held', silent: true })}
         onJourney={() => dispatch({ type: 'go', to: 'journey' })}
         onCircle={() => dispatch({ type: 'go', to: 'circle' })}
-        onSettings={() => dispatch({ type: 'go', to: 'settings' })}
+        onSettings={() => (running || s.pins ? setLocked(true) : dispatch({ type: 'go', to: 'settings' }))}
       />
     );
   }

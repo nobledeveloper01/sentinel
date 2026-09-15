@@ -114,3 +114,8 @@ export function phoneHash(raw: string): string {
   const e164 = `+234${digits}`;
   return bytesToHex(sha256(utf8ToBytes(e164)));
 }
+
+/** A PIN as the app keeps it: never the digits. The domain compares hashes. */
+export function pinHash(digits: string): string {
+  return bytesToHex(sha256(utf8ToBytes(`sentinel pin v1:${digits.replace(/\D/g, '')}`)));
+}

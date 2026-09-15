@@ -109,3 +109,24 @@ inside `act`, which is what the effect needed anyway.
 The envelope row carries the sender's public key now, because the member
 cannot derive the shared key without it, and the server's `/keys/{hash}`
 hands out public halves — the thing the server is allowed to know.
+
+## 2026-09-15, night — the cancel a coercer cannot perform
+
+ADR-0008 on the screen: the two-finger hold, the PIN pad, the duress PIN
+that cancels on the screen and tells the server the truth, silent mode on a
+long press, and the lock that the settings button becomes while an alert is
+hidden — the real PIN reveals it, the duress PIN opens the idle home and
+records *opened under duress*.
+
+**The `hidden: a.silent` line never landed.** The patch that added it to the
+panic case targeted text an earlier patch had already changed, and the
+replace found nothing and said nothing — the same failure Vitals' journal
+records twice. The test that long-pressed and expected the home found the
+alert screen instead. Read the file after a patch, every time.
+
+**Presses batched into one render did not see each other.** The PIN pad
+kept its digits in state and read them from the closure, so four presses
+inside one `act` each saw an empty string and the last one won: one dot,
+and a PIN of one digit. The digits live in a ref now and the state only
+draws the dots. The earlier test had passed only because its presses were
+outside `act`, one render each — a test that passes for the wrong reason.

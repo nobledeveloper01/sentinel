@@ -1,10 +1,13 @@
+import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { alert, numbers } from '@sentinel/domain';
+import { alert, duress as D, numbers } from '@sentinel/domain';
 
-import { Gap, SecondaryAction } from '../components/Actions';
+import { Gap } from '../components/Actions';
 import { Glass } from '../components/Glass';
+import { HoldToCancel } from '../components/HoldToCancel';
+import { PinPad } from '../components/PinPad';
 import { Text } from '../components/Text';
 import { space } from '../design/tokens';
 import { t } from '../phrases';
@@ -18,6 +21,7 @@ export function AlertScreen({
   record,
   circle,
   unreachable = [],
+  pins,
   state,
   nowMinutes,
   onCancel,
@@ -25,10 +29,14 @@ export function AlertScreen({
   record: alert.AlertRecord;
   circle: ReadonlyArray<{ hash: string; name: string }>;
   unreachable?: ReadonlyArray<string>;
+  pins: D.Pins | null;
   state: string | null;
   nowMinutes: number;
-  onCancel: () => void;
+  onCancel: (underDuress: boolean) => void;
 }) {
+  const [held, setHeld] = useState(false);
+  const [wrong, setWrong] = useState(false);
+  const gesture: D.CancelGesture = { fingers: D.CANCEL_FINGERS, heldMs: D.CANCEL_HOLD_MS };
   const insets = useSafeAreaInsets();
   const d = alert.delivery(record, nowMinutes);
   const acks = alert.acknowledgements(record, circle.map((m) => m.hash));
@@ -63,11 +71,32 @@ export function AlertScreen({
         })}
       </Glass>
       <View style={styles.grow} />
-      <SecondaryAction label={t.cancelAlert} onPress={onCancel} />
-      <Gap h={space.s} />
-      <Text variant="small" tone="secondary" style={styles.centre}>
-        {t.cancelHow}
-      </Text>
+      {held && pins ? (
+        <PinPad
+          label={t.enterPin}
+          wrong={wrong}
+          onEntered={(hash) => {
+            const out = D.cancel(pins, gesture, hash);
+            if (out.cancelled) onCancel(out.tellCircle === 'cancelled under duress');
+            else setWrong(true);
+          }}
+        />
+      ) : (
+        <>
+          <HoldToCancel
+            label={t.cancelAlert}
+            onHeld={() => {
+              // No PIN set yet: the gesture alone ends it; it is still not a reach-over.
+              if (pins) setHeld(true);
+              else onCancel(false);
+            }}
+          />
+          <Gap h={space.s} />
+          <Text variant="small" tone="secondary" style={styles.centre}>
+            {t.cancelHow}
+          </Text>
+        </>
+      )}
     </View>
   );
 }

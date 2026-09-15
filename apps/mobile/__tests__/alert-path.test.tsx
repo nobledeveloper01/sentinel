@@ -1,32 +1,17 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 
 import { generateKeyPair, phoneHash } from '@sentinel/crypto';
 
 import App from '../src/App';
 import { t } from '../src/phrases';
 import { register } from '../src/relay';
-import type { Services } from '../src/services';
-import { memoryTransport } from '../src/transport';
+import { evening, holdToCancel, tap } from './support';
 
 jest.mock('react-native-safe-area-context', () => ({
   SafeAreaProvider: ({ children }: { children: unknown }) => children,
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
 }));
 
-/** An evening on the phone, against a server in memory that a test can read. */
-function evening(position: { lat: number; lon: number } | null = null) {
-  const server = memoryTransport();
-  const services: Services = { transport: server, position: () => Promise.resolve(position), keys: generateKeyPair(), now: () => 1000 };
-  return { server, services };
-}
-
-/** A press whose side effects reach the server: let the promises settle inside act. */
-async function tap(name: string) {
-  await act(async () => {
-    fireEvent.press(screen.getByRole('button', { name }));
-    await Promise.resolve();
-  });
-}
 
 async function saveMe(name = 'Ada') {
   fireEvent.press(screen.getByRole('button', { name: t.settings }));
@@ -75,7 +60,9 @@ describe('the alert path', () => {
     await tap(t.panic);
     await waitFor(() => expect(server.alerts.size).toBe(1));
     expect([...server.alerts.values()][0]!.envelopes).toHaveLength(0);
-    await tap(t.cancelAlert);
+    jest.useFakeTimers();
+    await holdToCancel();
+    jest.useRealTimers();
     // Bola accepts on her phone, in Yorùbá; the stranger never does.
     server.accept(myId, bola.phoneHash, 'yo');
     server.accept(myId, phoneHash('0803 000 0002'), 'en'); // accepted, but her phone has no key
