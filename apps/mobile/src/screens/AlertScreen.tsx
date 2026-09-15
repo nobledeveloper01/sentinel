@@ -45,6 +45,11 @@ export function AlertScreen({
           {d.state === 'delivered' ? t.alertSentTo : d.state === 'trying' ? t.delivering : t.notDelivered}
         </Text>
         <Gap h={space.s} />
+        {acks.length === 0 ? (
+          <Text variant="body" tone="attention">
+            {t.alertNobody}
+          </Text>
+        ) : null}
         {acks.map((a) => {
           const m = circle.find((x) => x.hash === a.who);
           return (

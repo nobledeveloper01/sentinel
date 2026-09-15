@@ -13,7 +13,7 @@ import pathlib
 import re
 import sys
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageChops, ImageDraw
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 TOKENS = (ROOT / "apps/mobile/src/design/tokens.ts").read_text()
@@ -100,6 +100,23 @@ def outputs():
         yield res / f"mipmap-{dpi}/ic_launcher_foreground.png", png(fg)
 
 
+def same(p, data: bytes) -> bool:
+    """Byte-equal, or — for a PNG — pixel-equal within the anti-aliasing
+    slack between Pillow releases, so the gate catches a hand-edited icon
+    and not a resampler that moved by one level of grey."""
+    have = p.read_bytes()
+    if have == data:
+        return True
+    if p.suffix != ".png":
+        return False
+    a = Image.open(io.BytesIO(have)).convert("RGBA")
+    b = Image.open(io.BytesIO(data)).convert("RGBA")
+    if a.size != b.size:
+        return False
+    diff = ImageChops.difference(a, b)
+    return max(x for band in diff.split() for x in band.getextrema()) <= 8
+
+
 def main(check: bool) -> int:
     night = "#%02X%02X%02X" % NIGHT
     colours = ROOT / "apps/mobile/android/app/src/main/res/values/colors.xml"
@@ -112,7 +129,7 @@ def main(check: bool) -> int:
     sb = re.sub(r'<color key="backgroundColor" red="[0-9.]+" green="[0-9.]+" blue="[0-9.]+"',
                 f'<color key="backgroundColor" red="{r}" green="{g}" blue="{b}"', sb)
     files = list(outputs()) + [(colours, xml.encode()), (story, sb.encode())]
-    stale = [p for p, data in files if not p.exists() or p.read_bytes() != data]
+    stale = [p for p, data in files if not p.exists() or not same(p, data)]
     if check:
         for p in stale:
             print(f"\033[0;31m✗\033[0m {p.relative_to(ROOT)} is not what the mark draws — run make mark")

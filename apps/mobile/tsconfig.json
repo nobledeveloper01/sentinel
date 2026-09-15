@@ -14,7 +14,8 @@
     "skipLibCheck": true,
     "jsx": "react-jsx",
     "paths": {
-      "@sentinel/domain": ["../../packages/domain/src/index.ts"]
+      "@sentinel/domain": ["../../packages/domain/src/index.ts"],
+      "@sentinel/crypto": ["../../packages/crypto/src/index.ts"]
     }
   },
   "include": ["src", "__tests__", "index.js", "app.json"],

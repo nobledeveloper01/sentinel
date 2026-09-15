@@ -5,6 +5,7 @@ module.exports = {
   // Metro consumes it, so a test and the app agree about what they run.
   moduleNameMapper: {
     '^@sentinel/domain$': '<rootDir>/../../packages/domain/src/index.ts',
+    '^@sentinel/crypto$': '<rootDir>/../../packages/crypto/src/index.ts',
   },
   transformIgnorePatterns: ['node_modules/(?!(@react-native|react-native|@sentinel)/)'],
 };

@@ -57,3 +57,29 @@ the absence of an error.
 which was a summary. Twelve sections: the problem, how it works, the app,
 each layer, quick start, correctness notes, the pipeline, data handling,
 development, layout, status, licensing. The screenshots wait on the licence.
+
+## 2026-09-15, later — the first CI run, and the circle
+
+The first run on GitHub was cancelled by the second push a minute behind it;
+the second failed on `mark-check`: fifteen Android icons "not what the mark
+draws". The iOS ones matched. The runner's Pillow and this machine's produce
+different bytes for the same small circle — a resampler that moved by one
+level of grey. The gate compared bytes; it now compares pixels within a
+tolerance of eight, still fails on a painted pixel (tried), and CI pins the
+Pillow version too. **A byte-exact gate on a rendered image is a gate on the
+renderer's version**, which is the lesson from Snag's fixture again, from the
+other side.
+
+Then the envelope, the phone hash, the reducer, and the two screens. The
+reducer is the thing worth having: an evening — invite, accept, start a
+journey, never confirm, the alert, the cancel — runs through it in a test
+with no screen, and the screens only dispatch. Four things it settled by
+being written: a second panic during an alert does not start a second
+record; a journey nobody confirms becomes an alert *by the journey path* so
+the debrief knows; removing a member removes the name; the alert screen with
+nobody in the circle says so beside the number, instead of a list with
+nothing in it — found because the home test lost its demo circle.
+
+`TextEncoder` is not a thing TypeScript will promise a React Native target
+has. `@noble/hashes/utils` has `utf8ToBytes` and `bytesToHex`, which is what
+the envelope uses now on both sides.

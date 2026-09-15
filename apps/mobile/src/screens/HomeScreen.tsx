@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -16,11 +17,14 @@ import { t } from '../phrases';
  */
 export function HomeScreen({
   state,
+  card,
   onPanic,
   onJourney,
   onCircle,
 }: {
   state: string | null;
+  /** A journey under way, above the fold, or nothing. */
+  card?: ReactNode;
   onPanic: () => void;
   onJourney: () => void;
   onCircle: () => void;
@@ -54,6 +58,12 @@ export function HomeScreen({
           {t.panicHint}
         </Text>
         <Gap h={space.l} />
+        {card ? (
+          <>
+            {card}
+            <Gap />
+          </>
+        ) : null}
         <SecondaryAction label={t.journeyStart} onPress={onJourney} />
         <Gap h={space.s} />
         <SecondaryAction label={t.circle} onPress={onCircle} />

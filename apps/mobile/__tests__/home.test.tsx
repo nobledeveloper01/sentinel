@@ -23,7 +23,8 @@ describe('the home', () => {
     fireEvent.press(screen.getByRole('button', { name: t.panic }));
     expect(screen.getByTestId('delivery')).toBeTruthy();
     expect(screen.getByText('767')).toBeTruthy();
-    expect(screen.getByText(`Your circle · ${t.notYetAcknowledged}`)).toBeTruthy();
+    // Nobody in the circle yet: the screen says so, beside the number, instead of pretending.
+    expect(screen.getByText(t.alertNobody)).toBeTruthy();
     fireEvent.press(screen.getByRole('button', { name: t.cancelAlert }));
     expect(screen.getByRole('button', { name: t.panic })).toBeTruthy();
   });

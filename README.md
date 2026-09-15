@@ -225,13 +225,29 @@ import each other:
 | `public/screen.ts` | The on-device screening rules and the fail-closed admission |
 | `public/corrections.ts` | The audience a correction must reach |
 
+### `packages/crypto` — the envelope
+
+X25519 agreement, HKDF, XChaCha20-Poly1305, from the audited `@noble`
+packages in pure TypeScript, so the phone and Node run the same bytes with no
+native module to trust. `seal` takes a position and one member's public key;
+`open` takes the member's secret; the test hands a party everything the
+server holds — every public key and the envelope — and it cannot open it. A
+phone number becomes the circle's name for a person here too: E.164, then
+SHA-256, so the server matches invitations on a hash and never holds a number.
+The domain knows nothing of this package.
+
 ### `apps/mobile` — the screens, and what the domain cannot own
 
 React Native 0.87 on the New Architecture. `src/design/tokens.ts` is
 `DESIGN.md` as code and the only place a colour lives; `src/phrases.ts` is
 every word the app says, so the copy gate can read them. The components are
 the mesh, the glass at three depths, the two actions, and the text — each
-reading the theme at act time.
+reading the theme at act time. `src/state.ts` is the one function that
+changes what the app holds — the screens dispatch to it and nothing else
+touches state — so a test drives a whole evening through it without a screen:
+an invitation that shares nothing until accepted, a second panic that does not
+start a second record, a journey nobody confirms becoming an alert to the
+people it named.
 
 ### `server` — a replica that holds only what it cannot read
 
@@ -377,11 +393,14 @@ packages/domain/src/personal/   the circle, the journey, the alert, duress,
 packages/domain/src/public/     reach, the closed list, the screen, corrections
 packages/domain/test/           the reach property over 800 worlds; the halves
                                 that never import each other; the screening corpus
+packages/crypto/                the envelope and the phone hash; the server-cannot-open test
 apps/mobile/src/design/         tokens (DESIGN.md as code) and the theme
 apps/mobile/src/components/     the mesh, the glass, the two actions, the text
-apps/mobile/src/screens/        the home and the alert
+apps/mobile/src/screens/        the home, the alert, the circle, the journey
+apps/mobile/src/state.ts        the one function that changes what the app holds
 apps/mobile/src/phrases.ts      every word the app says
-apps/mobile/__tests__/          the contrast pairs; the home to the alert and back
+apps/mobile/__tests__/          the contrast pairs; the home to the alert and back;
+                                the circle and the journey; an evening through the reducer
 server/src/Sentinel.Domain/     reach and the escalation plan, in C#
 server/src/Sentinel.Infrastructure/  the store and the SMS gateway interface
 server/src/Sentinel.Api/        the endpoints; Messages.cs is read by the copy gate
@@ -395,27 +414,29 @@ docs/adr/                       the eight decisions, and the six things refused
 
 ## 11. Status
 
-Phase 0 of eight: the foundation. The domain, the server, the design system,
-the mark and the gates are built and green; the screens are the shell the
-phases fill.
+Phase 1 of eight: crypto and the circle. The foundation is green on this
+machine and in CI; the envelope, the circle screen with *who can see me* and
+the journey screen with its plan shown before it starts are built on top of
+it.
 
-**18 domain tests including the 800-world reach property, 148 app tests
-including 146 contrast pairs, 6 server tests including the cannot-read proof
-and parity over 200 worlds.**
+**18 domain tests including the 800-world reach property, 4 crypto tests
+including the server-cannot-open proof, 154 app tests including 146 contrast
+pairs, 6 server tests including the cannot-read proof and parity over 200
+worlds.**
 
 | | |
 |---|---|
-| Phase | 0 of 8 |
+| Phase | 1 of 8 |
 | ADRs | 8 |
 | Things beyond the plan | 30 built or scheduled, 6 refused (ADR-0006) |
 | Gates | 8 blocking `make ci`; 8 needing hardware, people or a city |
 
 | Phase | State |
 | --- | --- |
-| **0** Foundation | Built — CI on both platforms is the remaining half of the gate; the Critical Alerts application (R5) is a form to Apple |
-| **1** Crypto and the circle | The circle's rules are built; the keys and the cannot-decrypt gate are next |
+| **0** Foundation | Built and green in CI; the Critical Alerts application (R5) is a form to Apple |
+| **1** Crypto and the circle | **current** — the envelope and its cannot-open test, the circle screen and *who can see me* are built; device keys held on the phone and rotation are next |
 | **2** The panic path | The record and the honest delivery state are built; every trigger path and channel needs a handset (R1, R2, R4) |
-| **3** Safe arrival | The plan, the states, the geofence and the server's timer are built and tested; the phone-off gate (R3) needs a phone |
+| **3** Safe arrival | The plan, the states, the geofence, the server's timer and the screen that shows the plan before it starts are built and tested; the phone-off gate (R3) needs a phone |
 | **4** Trust surfaces → v1.0 | Duress and the cancel are built; silent mode, the privacy screen, the record's export and organisations are to build |
 | **5** The reach engine | **Built and property-tested**, ahead of order, because the riskiest surface should have the most tested rule behind it |
 | **6** Content screening | The on-device rules and the corpus are built; the server model and the face check are to build |

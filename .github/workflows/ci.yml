@@ -32,7 +32,7 @@ jobs:
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-      - run: python3 -m pip install --quiet Pillow
+      - run: python3 -m pip install --quiet Pillow==11.3.0
       - run: pnpm install --frozen-lockfile
       - name: The gates
         run: make gates

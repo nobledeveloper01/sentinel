@@ -30,6 +30,7 @@ gates: typecheck lint boundary doc-check copy-check design-check mark-check coun
 ## test: the domain tests, including the reach property tests
 test:
 	pnpm --filter @sentinel/domain test
+	pnpm --filter @sentinel/crypto test
 
 ## typecheck: tsc across the workspace, and the scripts that guard the gates
 typecheck:

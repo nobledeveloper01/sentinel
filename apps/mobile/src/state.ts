@@ -1,0 +1,83 @@
+import { alert as A, circle as C, journey as J } from '@sentinel/domain';
+
+/**
+ * Everything the app holds, and the one function that changes it. Pure, so
+ * a test drives a whole evening through it without a screen; the screens
+ * dispatch, the store persists (Phase 1), and nothing else touches state.
+ */
+export interface Screen {
+  readonly name: 'home' | 'circle' | 'journey';
+}
+
+export interface AppState {
+  readonly screen: Screen['name'];
+  readonly circle: C.Circle;
+  /** Display names the user typed, by phone hash. Never sent anywhere. */
+  readonly names: Readonly<Record<string, string>>;
+  readonly alert: A.AlertRecord | null;
+  readonly journey: { readonly plan: J.Journey; readonly confirmed: boolean } | null;
+  readonly past: ReadonlyArray<A.AlertRecord>;
+}
+
+export const INITIAL: AppState = { screen: 'home', circle: C.EMPTY, names: {}, alert: null, journey: null, past: [] };
+
+export type Action =
+  | { readonly type: 'go'; readonly to: Screen['name'] }
+  | { readonly type: 'invite'; readonly hash: string; readonly name: string; readonly now: number }
+  | { readonly type: 'accepted'; readonly hash: string; readonly language: C.Language; readonly now: number }
+  | { readonly type: 'remove'; readonly hash: string }
+  | { readonly type: 'panic'; readonly now: number; readonly path: string; readonly silent: boolean }
+  | { readonly type: 'alertEvent'; readonly event: A.AlertEvent }
+  | { readonly type: 'cancelAlert'; readonly now: number; readonly underDuress: boolean }
+  | { readonly type: 'startJourney'; readonly journey: J.Journey }
+  | { readonly type: 'arrived' }
+  | { readonly type: 'journeyEscalated'; readonly now: number };
+
+export function reduce(s: AppState, a: Action): AppState {
+  switch (a.type) {
+    case 'go':
+      return { ...s, screen: a.to };
+    case 'invite':
+      return { ...s, circle: C.invite(s.circle, a.hash, a.now), names: { ...s.names, [a.hash]: a.name } };
+    case 'accepted':
+      return { ...s, circle: C.accept(s.circle, a.hash, a.language, a.now) };
+    case 'remove': {
+      const names = { ...s.names };
+      delete names[a.hash];
+      return { ...s, circle: C.remove(s.circle, a.hash), names };
+    }
+    case 'panic':
+      if (s.alert && !A.isOver(s.alert)) return s;
+      return {
+        ...s,
+        screen: 'home',
+        alert: { id: String(a.now), events: [{ kind: 'triggered', at: a.now, path: a.path, silent: a.silent, drill: false }] },
+      };
+    case 'alertEvent':
+      return s.alert ? { ...s, alert: A.append(s.alert, a.event) } : s;
+    case 'cancelAlert': {
+      if (!s.alert) return s;
+      const done = A.append(s.alert, { kind: 'cancelled', at: a.now, underDuress: a.underDuress });
+      return { ...s, alert: null, past: [...s.past, done] };
+    }
+    case 'startJourney':
+      return { ...s, screen: 'home', journey: { plan: a.journey, confirmed: false } };
+    case 'arrived':
+      return { ...s, journey: null };
+    case 'journeyEscalated': {
+      // The journey becomes an alert to the people it named — the same
+      // record, the same honest delivery state, the same cancel.
+      if (!s.journey) return s;
+      const alert: A.AlertRecord = {
+        id: String(a.now),
+        events: [{ kind: 'triggered', at: a.now, path: 'journey', silent: false, drill: false }],
+      };
+      return { ...s, journey: null, alert };
+    }
+  }
+}
+
+/** The journeys a member can currently see, for `whoCanSeeMe`. */
+export function sharedJourneys(s: AppState): ReadonlyArray<{ with: ReadonlyArray<string>; until: number }> {
+  return s.journey ? [{ with: s.journey.plan.notify, until: J.plan(s.journey.plan).escalate }] : [];
+}

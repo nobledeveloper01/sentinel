@@ -7,7 +7,7 @@ holds, and a **hardware or people gate**, which needs a phone in a hand, a
 person, or a city, and is listed in `docs/RELEASE-GATES.md`. `PHASE` holds the
 number of the phase that is **current**.
 
-## Phase 0 — Foundation **current**
+## Phase 0 — Foundation
 
 The monorepo; `packages/domain` under the boundary lint; the React Native app
 shell on the New Architecture; the calm glass design system with light and dark
@@ -18,7 +18,7 @@ authored and every pair contrast-asserted; the mark and the launch screens; the
 gate are proved to fire; the design system's contrast test passes on every
 pair; the iOS Critical Alerts entitlement application is submitted (R5).*
 
-## Phase 1 — Crypto and the circle
+## Phase 1 — Crypto and the circle **current**
 
 Key agreement (X25519), envelopes (XChaCha20-Poly1305 or the platform's
 ChaCha20-Poly1305), key rotation, device keys; circle invites with mutual
