@@ -90,7 +90,7 @@ export async function acceptedMembers(transport: Transport, owner: string): Prom
   if (!r.ok || !Array.isArray(r.body)) return [];
   return (r.body as Array<{ withPhoneHash: string; accepted: boolean; language: string | null }>)
     .filter((c) => c.accepted && c.language !== null)
-    .map((c) => ({ hash: c.withPhoneHash, language: asLanguage(c.language!) }));
+    .map((c) => ({ hash: c.withPhoneHash, language: asLanguage(c.language ?? 'en') }));
 }
 
 function asLanguage(l: string): C.Language {
