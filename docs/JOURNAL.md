@@ -174,3 +174,13 @@ the wrong partner, and the gate reported an exclamation mark in a "string"
 that was forty lines of code. The strip wants whitespace or a line start
 before the slashes now. Sixty-two strings checked before; eighty-eight
 after — the gate had been reading less of the file than it said.
+
+**Fake timers hung `act` on the runner and not here.** Every test that
+faked the clock for the two-second hold timed out at five seconds on
+GitHub's Node 22, and its `afterEach` timed out behind it — 173 green on
+this machine's Node 26, forty minutes of nothing on the runner, cancelled by
+hand. Faking `setImmediate`, `nextTick` and `queueMicrotask` fakes the loop
+the testing library flushes `act` through; the runner's Node scheduled it
+differently and never came back. `fakeClock()` leaves those three real and
+fakes only what the hold and the minute need. The lesson Noosphere wrote
+down applies here too: local green means little; say which Node.

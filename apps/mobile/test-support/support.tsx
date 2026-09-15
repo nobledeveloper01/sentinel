@@ -62,3 +62,13 @@ export function begin() {
   fireEvent.press(screen.getByRole('button', { name: t.begin }));
   fireEvent.press(screen.getByRole('button', { name: t.back }));
 }
+
+/**
+ * Fake timers for the hold and the minute, with the loop React and the
+ * testing library flush through — setImmediate, nextTick, queueMicrotask —
+ * left real. Faking those hangs `act` on the CI runner's Node, which the
+ * machine this was written on did not show.
+ */
+export function fakeClock() {
+  jest.useFakeTimers({ doNotFake: ['setImmediate', 'nextTick', 'queueMicrotask'] });
+}

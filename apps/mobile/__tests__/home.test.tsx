@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react-native';
 
 import App from '../src/App';
 import { t } from '../src/phrases';
-import { begin, holdToCancel } from '../test-support/support';
+import { begin, fakeClock, holdToCancel } from '../test-support/support';
 
 // The provider is a native view that renders nothing under Jest without
 // metrics; the test wants the tree, not the insets.
@@ -21,7 +21,7 @@ describe('the home', () => {
   });
 
   test('the panic action opens the alert with the number still first, and the cancel ends it', async () => {
-    jest.useFakeTimers();
+    fakeClock();
     render(<App />);
     begin();
     fireEvent.press(screen.getByRole('button', { name: t.panic }));

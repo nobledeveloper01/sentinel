@@ -5,7 +5,7 @@ import { generateKeyPair, phoneHash } from '@sentinel/crypto';
 import App from '../src/App';
 import { t } from '../src/phrases';
 import { register } from '../src/relay';
-import { begin, evening, holdToCancel, tap } from '../test-support/support';
+import { begin, evening, fakeClock, holdToCancel, tap } from '../test-support/support';
 
 jest.mock('react-native-safe-area-context', () => ({
   SafeAreaProvider: ({ children }: { children: unknown }) => children,
@@ -44,7 +44,7 @@ describe('the alert path', () => {
   });
 
   test('an invitation shares nothing until the other phone accepts; then the alert is sealed to her and the server never sees the coordinate', async () => {
-    jest.useFakeTimers();
+    fakeClock();
     const { server, services, tick } = evening({ lat: 6.5244, lon: 3.3792 });
     const bola = { id: 'bola', phoneHash: phoneHash('0803 000 0001'), name: 'Bola', keys: generateKeyPair() };
     await register(server, bola, 1);

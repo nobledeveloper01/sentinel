@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
 import App from '../src/App';
 import { t } from '../src/phrases';
-import { begin, enterPin, evening, fingers, tap } from '../test-support/support';
+import { begin, enterPin, evening, fakeClock, fingers, tap } from '../test-support/support';
 
 jest.mock('react-native-safe-area-context', () => ({
   SafeAreaProvider: ({ children }: { children: unknown }) => children,
@@ -18,7 +18,7 @@ async function setPins(real: string, duress: string) {
 }
 
 describe('the cancel a coercer cannot perform by reaching over', () => {
-  beforeEach(() => jest.useFakeTimers());
+  beforeEach(() => fakeClock());
   afterEach(() => jest.useRealTimers());
 
   test('one finger, or two fingers lifted early, cancels nothing; two fingers for two seconds does', async () => {
