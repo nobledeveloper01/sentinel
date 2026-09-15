@@ -1,0 +1,12 @@
+<resources>
+    <!--
+        The launcher label, and the name on an alert's ongoing
+        notification. "SentinelApp" is the React Native template's project
+        name; the product is called Sentinel.
+
+        Not the same string as the registered component name, which stays
+        `SentinelApp` in `app.json` and `MainActivity.getMainComponentName()`
+        and must keep matching it.
+    -->
+    <string name="app_name">Sentinel</string>
+</resources>

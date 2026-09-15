@@ -1,77 +1,464 @@
 # Sentinel
 
-**Community safety coordination and emergency alerting for Nigeria.**
+Community safety coordination and emergency alerting for Nigeria.
 
-> **Read this first.** This is the one product in the portfolio where a design error causes direct
-> physical harm. A false alarm can trigger mob violence. A misidentified "suspicious person" can
-> get someone killed. A rumour amplified by a well-built app spreads faster than a rumour on
-> WhatsApp. Every design decision here is constrained by that fact, and the abuse model is
-> specified before any feature is.
+Sentinel puts a panic action under your thumb that reaches your own circle in
+under two seconds — by push, by SMS when there is no data, and by Bluetooth
+relay when there is no service — and a safe-arrival check-in that tells your
+circle where you were if you do not confirm arriving, even when the phone is
+dead. In a later release, behind its own gates, it adds a community incident
+feed built on one inversion: **reach is earned, not granted.**
 
-Emergency response in most of Nigeria is functionally absent, so people improvise — and the
-improvisation is a WhatsApp group. Those groups fail in four specific ways: nobody monitors them
-at 2am, they have no geography, they amplify rumour with no correction mechanism, and they have
-caused deaths.
-
-See [`docs/00-PRODUCT-STATEMENT.md`](docs/00-PRODUCT-STATEMENT.md) for the full analysis.
+> **Read this first.** Sentinel is the only product in this portfolio where a
+> design error causes direct physical harm. A false alarm can start a mob. A
+> "suspicious person" report can get somebody killed. A rumour carried by a
+> well-built app travels faster than one on WhatsApp. Every decision in this
+> repository is constrained by that fact, and the abuse model was written
+> before any feature — see [`docs/00-PRODUCT-STATEMENT.md`](docs/00-PRODUCT-STATEMENT.md)
+> and the eight ADRs in [`docs/adr/`](docs/adr/).
 
 ---
 
-## Status
+## 1. The problem
 
-Specified, not yet built. Deliberately **last** in the build order. The community layer — the part
-that can get someone killed — is sequenced behind three separate safety gates and does not ship
-until they pass.
+Emergency response in most of Nigeria is not slow. It is absent. There is no
+number that reliably summons help in a useful time, and in many places the
+nearest effective responder is not a service at all but a neighbour, an estate
+gate, or a community-sanctioned group. So people improvise, and the
+improvisation is a WhatsApp group.
 
-## The insight
+The WhatsApp group fails in four specific ways. Nobody is watching it at 2am.
+It has no geography — it reaches whoever joined, not whoever is near. It
+amplifies rumour and has no way to correct it. And it has caused deaths:
+unverified accusations of theft, kidnapping or witchcraft, circulated in local
+groups, have led directly to mob violence. That is not a hypothetical risk of
+the category. It is the category's documented history, and any product that
+enters it inherits that failure as its primary design problem.
 
-**In a system where a false alarm can kill someone, distribution must be earned, not granted.**
+The insight the whole product rests on:
 
-Most social products optimise for reach: easy to post, easy to share, easy to amplify. Applied
-here, that produces a faster lynching.
+> **In a system where a false alarm can kill someone, distribution must be
+> earned, not granted.**
 
-Sentinel inverts it. Posting is easy; **reach is metered.** A report starts visible within 500
-metres and widens only with independent corroboration. A single account — however panicked,
-however malicious — cannot alarm a city.
+Every social product optimises for reach. Applied here, that produces a faster
+lynching. Sentinel inverts it. Posting is easy; **reach is metered**. A report
+is visible to a few hundred metres and widens only with independent
+corroboration, reporter history and time. A single account — however
+panicked, however malicious — cannot alarm a city.
 
-The personal alert path is deliberately different: fast, unmetered, unconditional, because it goes
-to people who already know and trust you. **Alerting your own circle is a right; alarming
-strangers is a privilege.**
+The personal alert is different, and deliberately so: fast, unmetered and
+unconditional, because it goes to people who already know and trust you. The
+asymmetry is the design.
 
-## What it refuses to do
+> **Alerting your own circle is a right. Alarming strangers is a privilege.**
 
-- **No reporting of individual people.** No names, faces, descriptions, or plate numbers.
-  Incidents are about events at places. This single rule removes the mechanism by which safety
-  apps get people lynched.
-- **No `suspicious_person` category.** It cannot be reported, because the concept has no
-  legitimate use here and an obvious illegitimate one.
-- **No vigilante coordination.** No muster points, no group dispatch, no "who's nearby and
-  available".
-- **No engagement monetisation.** An engagement-optimised safety app is a machine for
-  manufacturing fear.
+### What it is not
 
-## Does it need a backend?
+**Sentinel never reports a person.** No names, no photographs of people, no
+descriptions, no plates. Incidents are events at places. There is no
+*suspicious person* category, and there will never be one; the category list
+is closed, free text is screened for anything that would make it about a
+person, and the screen fails closed. This one rule removes the mechanism by
+which safety apps get people killed ([ADR-0003](docs/adr/0003-nothing-about-a-person.md)).
 
-**Yes, and it is a safety requirement rather than an architectural one.** Two things only a server
-can do: **send SMS when the sender's phone has no data** (iOS categorically cannot do this
-itself), and **escalate a journey when the sender's phone is dead** — the scenario that matters
-most.
+**Sentinel does not coordinate a response.** No muster points, no "who is
+nearby and available", no dispatch, no map of responders. The circle screen
+during an alert shows who has *acknowledged*, never where they are, because a
+map of who is coming is a muster with a friendlier name.
 
-The server is deliberately **not trusted with content**: alert locations are end-to-end encrypted
-to circle devices and it relays ciphertext it cannot read. It is authoritative over exactly one
-thing — **reach** — because that must be unforgeable by any client.
+**Sentinel does not broadcast to strangers by default.** A personal alert
+reaches your circle and the organisations you explicitly opted into. Wider
+distribution needs verification thresholds a single account cannot reach.
 
-## The wedge
+**Sentinel is not a substitute for the emergency services.** It says so in the
+app, and the official numbers are on every alert surface, larger than
+Sentinel's own actions.
 
-**Safe-arrival check-ins.** Someone travelling at night sets an expected arrival; if they do not
-confirm, their chosen contacts are notified with their last known location. It works for one
-person with zero other users, carries no abuse risk, and builds the habit of having a circle
-configured *before* an emergency — the only time that configuration can usefully happen.
+**Sentinel has no engagement.** No counts, no badges, no ranking, no
+notifications about anything outside the radius you chose, and no analytics
+SDK installed at all. A safety app optimised for engagement is a machine for
+manufacturing fear ([ADR-0005](docs/adr/0005-calm-over-a-night-mesh.md)).
 
-Nobody installs an emergency app during an emergency. It has to be useful beforehand.
+**Sentinel's server cannot read a location.** An alert's position leaves the
+phone sealed to the circle's keys; the server relays envelopes, runs timers
+and meters reach. It never opens one, and a test proves it cannot
+([ADR-0004](docs/adr/0004-the-server-is-dotnet-and-holds-only-what-it-cannot-read.md)).
 
-## Platforms
+---
 
-Android 8.0+ and iOS 14+ from one codebase. Panic must fire in **under 2 seconds from a locked
-device** on both, via every trigger path each platform offers — so the trigger path is entirely
-native, reading a pre-computed payload with no JavaScript runtime in the way.
+## 2. How it works
+
+### Two paths that share nothing
+
+The personal path and the public path are separate modules, separate
+endpoints, separate screens and separate release gates, with nothing in common
+but the design system and the crypto. A test asserts that neither half of the
+domain imports the other. The personal path ships alone as v1.0; the public
+path is a later release that can be withdrawn without touching it
+([ADR-0007](docs/adr/0007-alerting-your-circle-is-a-right-and-alarming-strangers-is-a-privilege.md)).
+
+### The personal path
+
+**The circle.** You add people by phone number; they accept before anything is
+shared; either side ends it at any moment without giving a reason. A member
+receives your location only during an alert or a journey you shared with them,
+and one screen — *who can see where I am, right now* — is always current.
+
+**The alert.** A trigger on every path the platform offers — lock-screen
+widget, quick tile, power-button gesture, the Action Button, Back Tap — sends a
+pre-computed payload before the app is awake, by push, by server SMS, by device
+SMS on Android, and by Bluetooth relay through nearby Sentinel phones that
+learn an alert exists and nothing in it. The screen shows the official numbers
+first, then the honest delivery state: *your circle has been told*, *reaching
+your circle*, or *your circle could not be reached — call the number above*.
+Cancelling takes a two-finger hold and your PIN, which is a thing a coercer
+cannot do by reaching over; the duress PIN cancels on the screen and tells the
+circle *under duress* silently ([ADR-0008](docs/adr/0008-coercion-is-a-use-case.md)).
+
+**Safe arrival — the wedge.** A journey takes under twenty seconds: where, by
+when, who to tell. At the expected minute the phone asks; at +5 and +10 it
+asks again; at +15 the circle is told with your last position and the trail.
+The plan is scheduled on the device so it fires with the app killed, and
+**registered on the server so it fires with the phone dead** — the server's
+copy holds the expected minute and whom to tell, never the destination.
+Arrival by geofence still asks *are you there?*; automatic detection never
+cancels an escalation silently. It works for one person with zero other users,
+carries no abuse risk, and builds the habit of a configured circle before the
+night it is needed. Nobody installs an emergency app during an emergency.
+
+### The public path, in a later release
+
+**The closed list.** `robbery`, `burglary`, `road_blocked`, `accident`,
+`fire`, `flooding`, `gunfire_heard`, `unrest_or_protest`, `building_collapse`,
+`power_line_down`. No person category, no free category. The one exception,
+`missing_person_appeal`, is for a verified organisation or verified next of kin
+and never distributes without a human's review.
+
+**Reach.** A pure function of the evidence, computed on the server with
+authority:
+
+| Stage | Needs | Travels | Push |
+| --- | --- | --- | --- |
+| `reported` | one established account | 500 m | never |
+| `corroborated` | two more, independent, within 1 km and 30 min | 2 km | never |
+| `confirmed` | four more independent, or one verified organisation | 5 km | opt-in |
+| `verified` | an organisation and four, or an official source | area | yes |
+
+*Independent* means sharing no device, no install lineage, no circle
+relationship, and no implausibly correlated location trace, and a set of
+accounts sharing any signal — directly or by chain — collapses to one for
+counting. A surge in an area pins everything to `reported` pending a person. A
+dispute ratio pulls a stage down. **No sequence of actions by one account, or
+by any set that collapses to one, advances a report beyond `reported`** — and
+the property test that says so generates 800 worlds of accounts, signals,
+reports and corroborations and is a release blocker
+([ADR-0002](docs/adr/0002-reach-is-earned-and-a-single-account-never-passes-500-metres.md)).
+
+**The screen.** Free text is checked before submission for names, ethnic and
+religious identifiers, descriptions of persons, clothing, plates and phone
+numbers; a match blocks with the reason and an offer to describe the event
+instead. Images are refused if a face is found. With the screener unavailable,
+free text and images are refused and a category-and-location report still
+succeeds: the screen fails closed.
+
+**Corrections.** Every account that saw a report is remembered against it, so
+a downgrade or retraction reaches exactly that audience and can never reach
+fewer people than the claim did.
+
+### The design
+
+Glass over a night mesh — a blue-to-teal wash, never a warm one — in three
+depths that each mean one thing, with a solid twin for every surface and a
+zero twin for every duration, chosen at act time by two Settings toggles and
+the platform's Reduce Motion. One gradient control per screen; on the alert
+screen it is the panic action, 64 dp, the largest thing on the screen and under
+the thumb. **There is no red**: the design gate fails on a red token. Nothing
+counts, nothing pulses. Every text tone on every fill over every wash is
+contrast-asserted in CI — 146 pairs — in both palettes. The floor is a
+four-year-old Android phone with 2 GB, held in one hand, at night, possibly by
+someone frightened ([`DESIGN.md`](DESIGN.md)).
+
+---
+
+## 3. The app
+
+Phase 0 is the shell: the home, which is the alert screen because nobody opens
+a panic app to browse, and the alert in progress. The trigger paths, the
+channels and the keys arrive with Phases 1 and 2; the record they write is
+already the domain's.
+
+**The home.** The official numbers for your state, first and largest, and the
+sentence that Sentinel is not a substitute for them. Below, the one gradient
+control — *Alert my circle* — and beneath it the journey and the circle.
+
+**The alert.** The number again at the top. The delivery state in the
+palette's own words: green *told*, plain *reaching*, amber *could not be
+reached* with the instruction to call. Each circle member with *acknowledged*
+or *not yet* beside them, and nothing about where they are. At the bottom, the
+cancel, and the sentence that says how it is done.
+
+Screenshots come with the first simulator run; the Xcode licence on this Mac
+lapsed mid-build.
+
+---
+
+## 4. What each layer does
+
+### `packages/domain` — the rules, with no platform in them
+
+Pure TypeScript. It imports nothing from React, React Native, navigation,
+storage or the platform; it takes the time and the randomness as arguments.
+An ESLint rule forbids the imports, and `make boundary` injects a violation
+and fails the build if the rule has stopped matching. Two halves that never
+import each other:
+
+| Module | Holds |
+| --- | --- |
+| `personal/circle.ts` | Invite, accept in a language, remove; *who can see me right now* and under what condition |
+| `personal/journey.ts` | The plan — ask, remind, escalate — from one expected time; the state at a minute; the geofence that still asks; the server's copy without the destination |
+| `personal/alert.ts` | The append-only record; the honest delivery state; acknowledgements without positions; the false-alarm mirror the user alone sees |
+| `personal/duress.ts` | Which face a PIN opens; the two-finger cancel; what the circle is told |
+| `personal/numbers.ts` | The official numbers, bundled, by state, never repeated |
+| `personal/messages.ts` | The SMS a circle member receives, in the language she chose — English, Naijá, Yorùbá, Hausa, Igbo — with the number to call in it |
+| `public/reach.ts` | Independence, the collapse, the surge, the dispute ratio, the stage |
+| `public/categories.ts` | The closed list, its expiries, the per-account rate limits |
+| `public/screen.ts` | The on-device screening rules and the fail-closed admission |
+| `public/corrections.ts` | The audience a correction must reach |
+
+### `apps/mobile` — the screens, and what the domain cannot own
+
+React Native 0.87 on the New Architecture. `src/design/tokens.ts` is
+`DESIGN.md` as code and the only place a colour lives; `src/phrases.ts` is
+every word the app says, so the copy gate can read them. The components are
+the mesh, the glass at three depths, the two actions, and the text — each
+reading the theme at act time.
+
+### `server` — a replica that holds only what it cannot read
+
+ASP.NET Core 9 in C#, Postgres in production and in memory for a laptop and a
+test. `Sentinel.Domain` mirrors the reach engine and the escalation plan, held
+to the TypeScript by [`fixtures/reach.json`](fixtures/reach.json) — 200
+generated worlds and the stage each was given, regenerated by `make fixtures`
+as part of changing a rule. `Sentinel.Infrastructure` is the store: accounts as
+a phone hash and a device key, circles, journeys as an escalation minute and a
+list of who to tell, envelopes as nonce and ciphertext, attempts as channel,
+recipient and outcome. The SMS gateway is an interface whose logging
+implementation keeps that a message went and to whom, never the text.
+
+---
+
+## 5. Quick start
+
+```bash
+make setup          # pnpm install
+make ci             # every gate, then the domain, app and server tests
+make server-run     # the replica in memory on http://localhost:5000
+make app-ios        # the app on a booted simulator (needs pods: make app-pods)
+```
+
+`make test` alone runs the domain in about a second, including the 800-world
+reach property. `make server-test` needs no database.
+
+---
+
+## 6. Correctness notes
+
+What the gates and the tests found on the first day, kept here because each
+is the kind of thing that recurs.
+
+### A name at the start of a sentence
+
+The first name rule required a character before the capitalised pair, so it
+would not fire on a sentence's first word — and *Chukwuemeka Okafor took the
+generator* walked through the screen. A name is most often at the start of a
+sentence. The rule now takes any capitalised pair anywhere and excuses only a
+second word that is the word for a place, so *Allen Avenue* is a road and
+*Mr Adebayo* is a person.
+
+### The exclamation mark that was TypeScript
+
+The copy gate bans an exclamation mark, because the calm rules do. Its first
+catch was `${official[0]!.label}` — the non-null assertion in a template
+literal. The rule now flags a `!` that is not followed by a `.`, a word
+character or a `(`.
+
+### The green that failed on the highest glass
+
+Dark mode's *fine* green cleared 4.5:1 on every fill but one: text on the
+high glass over the teal wash, where the white alpha lifts the background
+enough to lose the ratio. One of 146 pairs, found by the test and not by an
+eye. The green is lighter now and `DESIGN.md` says so.
+
+### A python that was Xcode's
+
+Every `python3` on this Mac is a shim into Xcode, and when Xcode's licence
+lapsed mid-afternoon every gate script exited 69 with a message about a
+licence — and the edits made through it silently did not happen, because the
+heredoc had been handed to a shell that printed a sentence and returned. Three
+files were found unedited an hour later. The Command Line Tools carry their
+own `python3`, `git` and `make`; the session's PATH points there until the
+licence is accepted.
+
+---
+
+## 7. The documentation pipeline
+
+| Document | Answers | Updated |
+| --- | --- | --- |
+| [`docs/JOURNAL.md`](docs/JOURNAL.md) | What did we do, and what surprised us? | Every session |
+| [`CHANGELOG.md`](CHANGELOG.md) | What changed for someone using this — and, for this product, how could it be used to hurt someone and what stops it? | Every user-visible change |
+| [`docs/adr/`](docs/adr/) | Why is it built this way, and what was refused? | Any non-obvious decision, before the code |
+| [`docs/ROADMAP.md`](docs/ROADMAP.md) + `PHASE` | Where are we, and what finishes this phase? | When a gate goes green |
+| [`docs/RELEASE-GATES.md`](docs/RELEASE-GATES.md) | What needs a phone in a hand, a person, or a city? | When a gate is cleared |
+| [`DESIGN.md`](DESIGN.md) | What may a screen look like, and what may it never do? | With the tokens, held equal by a gate |
+
+`make doc-check` fails when a document is missing, malformed, or present on
+disk and not in git — the one that has actually bitten, in every project in
+this portfolio — and warns when the code has moved and the journal has not.
+
+---
+
+## 8. Data handling
+
+The safest dataset is the one that does not exist. The server holds only what
+it cannot read, and the phone holds only what the person typed.
+
+| Class | Examples | Rule |
+| --- | --- | --- |
+| Sealed to the circle | An alert's position, a journey's trail | Envelopes under keys the server never sees. A server test gives the server everything it holds and shows it cannot produce a coordinate |
+| Held in plaintext, minimal | Phone-number hashes, device public keys, who is in whose circle, a journey's escalation minute and whom to tell | What the timers and the relay need, and nothing a name could be attached to |
+| Sent and not kept | The SMS fallback's text | Generated at send time, sent, forgotten; the record says a message went and to whom |
+| Never collected | Names, addresses, location outside an alert or a shared journey, anything about a person in a report | Not asked for; no surface accepts it; the screen refuses it |
+| Coarse by design | A report's position | 500 m granularity on the public path, and the only thing that survives a report's expiry is an aggregate for route advisory |
+| Attributable internally | Who reported what | Pseudonymous to other users, attributable to the operator, and stated plainly at signup — no anonymous accusation |
+
+The data-request policy is a page in Settings (Phase 4), not a PDF on a
+website.
+
+---
+
+## 9. Development
+
+```bash
+make ci            # everything CI runs
+make gates         # the blocking checks alone: typecheck, lint, boundary, docs, copy, design, mark, counts
+make test          # the domain, with the reach property
+make app-test      # the app, with the 146 contrast pairs
+make server-test   # the replica, with the cannot-read proof
+make fixtures      # regenerate fixtures/reach.json after a rule changes
+make mark          # redraw the icons and launch screens from the mark
+```
+
+Three traps worth knowing before they cost an afternoon:
+
+- **`make fixtures` is part of changing a reach rule.** CI regenerates the
+  fixture and fails on a diff, so a rule changed on one side without the other
+  is a red build that names the step.
+- **`export LANG=en_US.UTF-8` before any iOS build.** CocoaPods fails with
+  `Encoding::CompatibilityError` and never mentions the locale.
+- **pnpm hoists to the repository root.** Gradle's paths in
+  `apps/mobile/android` are three levels up, not one, and the generated ones
+  fail with a message about an included build that does not exist.
+
+### Before a feature is called done
+
+Every feature gets a written answer to *how could this be used to hurt
+someone, and what stops it?* — in its changelog entry — before the checklist
+in [`CLAUDE.md`](CLAUDE.md) is opened. That item is unique to this product and
+it is not a formality.
+
+---
+
+## 10. Layout
+
+```text
+packages/domain/src/personal/   the circle, the journey, the alert, duress,
+                                the numbers, the SMS in five languages — Apache-2.0
+packages/domain/src/public/     reach, the closed list, the screen, corrections
+packages/domain/test/           the reach property over 800 worlds; the halves
+                                that never import each other; the screening corpus
+apps/mobile/src/design/         tokens (DESIGN.md as code) and the theme
+apps/mobile/src/components/     the mesh, the glass, the two actions, the text
+apps/mobile/src/screens/        the home and the alert
+apps/mobile/src/phrases.ts      every word the app says
+apps/mobile/__tests__/          the contrast pairs; the home to the alert and back
+server/src/Sentinel.Domain/     reach and the escalation plan, in C#
+server/src/Sentinel.Infrastructure/  the store and the SMS gateway interface
+server/src/Sentinel.Api/        the endpoints; Messages.cs is read by the copy gate
+server/tests/                   parity over the fixture; the server cannot read
+fixtures/reach.json             what the TypeScript said, for the C# to agree with
+scripts/                        the gates: boundary, doc, copy, design, mark, counts, fixtures
+docs/adr/                       the eight decisions, and the six things refused
+```
+
+---
+
+## 11. Status
+
+Phase 0 of eight: the foundation. The domain, the server, the design system,
+the mark and the gates are built and green; the screens are the shell the
+phases fill.
+
+**18 domain tests including the 800-world reach property, 148 app tests
+including 146 contrast pairs, 6 server tests including the cannot-read proof
+and parity over 200 worlds.**
+
+| | |
+|---|---|
+| Phase | 0 of 8 |
+| ADRs | 8 |
+| Things beyond the plan | 30 built or scheduled, 6 refused (ADR-0006) |
+| Gates | 8 blocking `make ci`; 8 needing hardware, people or a city |
+
+| Phase | State |
+| --- | --- |
+| **0** Foundation | Built — CI on both platforms is the remaining half of the gate; the Critical Alerts application (R5) is a form to Apple |
+| **1** Crypto and the circle | The circle's rules are built; the keys and the cannot-decrypt gate are next |
+| **2** The panic path | The record and the honest delivery state are built; every trigger path and channel needs a handset (R1, R2, R4) |
+| **3** Safe arrival | The plan, the states, the geofence and the server's timer are built and tested; the phone-off gate (R3) needs a phone |
+| **4** Trust surfaces → v1.0 | Duress and the cancel are built; silent mode, the privacy screen, the record's export and organisations are to build |
+| **5** The reach engine | **Built and property-tested**, ahead of order, because the riskiest surface should have the most tested rule behind it |
+| **6** Content screening | The on-device rules and the corpus are built; the server model and the face check are to build |
+| **7** The community layer → v1.1 | Not started, by design: the last thing built, behind three gates and a month in one city |
+| **8** Advisory → v1.2 | The five-language SMS is built; advisory and patrol logging are not |
+
+### What is open, and why it matters
+
+| Open | Blocks | Why it is not closed |
+| --- | --- | --- |
+| Under two seconds from a locked device, every path, both platforms | v1.0 (R1) | A panic control that is slow is one that is not pressed. Only a stopwatch and a handset can measure it |
+| The delivery matrix | v1.0 (R2) | Data/no-data × service/no-service × platform needs a SIM with no data and a room with no service |
+| Escalation with the phone switched off | v1.0 (R3) | The server's timer is built and tested; the gate is a phone, off, at the expected minute |
+| Mesh relay on mixed hardware | v1.0 (R4) | Three handsets, hop limits watched, nothing readable on the air |
+| An outside reading of the abuse model | v1.0 (R7) | Someone who has seen the WhatsApp failure, reading every surface for a way to hurt someone |
+| Thirty days in one city, zero harm | v1.1 (R6) | The community layer's only real test, and the one that governs whether it ships at all |
+
+---
+
+## 12. Licensing
+
+Two licences, because the two halves have opposite jobs.
+
+**The application and the server are under the [Business Source License 1.1](LICENSE).**
+You may use them in production to alert your own circle, run safe-arrival
+check-ins, and coordinate the safety of a community, estate or organisation
+you belong to or serve. You may not offer Sentinel itself to third parties as
+a hosted emergency-alerting or community-safety service. On **2030-08-28** it
+converts to Apache-2.0.
+
+**The domain package — [`packages/domain`](packages/domain/LICENSE) — is
+Apache-2.0 today.** How far a report may travel, when a journey escalates, and
+what the screen refuses are rules anybody should be able to read and run, and
+above all anybody should be able to check that a single account really cannot
+alarm a city. A rule nobody outside can audit is a rule with no standing.
+
+---
+
+Read [`CHANGELOG.md`](CHANGELOG.md) for what changed and the abuse answer for
+each, [`docs/ROADMAP.md`](docs/ROADMAP.md) for the eight phases and their exit
+gates, [`docs/RELEASE-GATES.md`](docs/RELEASE-GATES.md) for what needs a phone
+in a hand or a city, [ADR-0006](docs/adr/0006-thirty-more-things-each-checked-against-the-refusals.md)
+for the thirty things and the six refused — with the reasoning, which will be
+needed again the next time somebody proposes one — and
+[`docs/00-PRODUCT-STATEMENT.md`](docs/00-PRODUCT-STATEMENT.md) for the full
+problem analysis.

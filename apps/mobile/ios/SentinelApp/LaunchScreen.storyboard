@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    What iOS draws between the tap and the first React frame.
+
+    The template's version said "SentinelApp" in 36pt bold and "Powered by
+    React Native" along the bottom, on white. Neither is for the person holding
+    the phone: one is the Xcode target name and the other is an advertisement
+    for a framework. And white is the wrong colour — the app's own splash is
+    the accent blue, so the template flashed white and then blue on every cold
+    start.
+
+    So: the field, the mark, and nothing else. It hands over to the app's own
+    splash without a colour change, which is what makes the two read as one
+    thing rather than as two loads.
+-->
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22505"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LaunchMark" translatesAutoresizingMaskIntoConstraints="NO" id="mrk-01-vew">
+                                <rect key="frame" x="136.5" y="386" width="120" height="80"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="120" id="mrk-w1-cst"/>
+                                    <constraint firstAttribute="height" constant="80" id="mrk-h1-cst"/>
+                                </constraints>
+                            </imageView>
+                        </subviews>
+                        <!-- The accent from `apps/mobile/src/design/tokens.ts`, as sRGB
+                             components. A storyboard cannot read a hex string. -->
+                        <color key="backgroundColor" red="0.0392156862745098" green="0.10196078431372549" blue="0.16862745098039217" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="mrk-01-vew" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="mrk-cx-cst"/>
+                            <constraint firstItem="mrk-01-vew" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="mrk-cy-cst"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="0.0" y="0.0"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="LaunchMark" width="120" height="120"/>
+    </resources>
+</document>

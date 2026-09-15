@@ -1,0 +1,39 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
+        <!--
+            The window behind React, in the product's own blue.
+
+            `MainActivity` swaps from `LaunchTheme` to this one before React
+            has drawn anything, so whatever this window's background is, is
+            what fills the gap. It was the platform default — white — which
+            put a white rectangle between the blue launch screen and the blue
+            splash, on a phone the driver may well have set to dark.
+
+            Every screen paints its own surface over this, so it is only ever
+            seen in that gap. On the handsets this product is built for the gap
+            is over a second.
+        -->
+        <item name="android:windowBackground">@color/launch_background</item>
+    </style>
+
+    <!--
+        The window the app opens into.
+
+        Its background is the launch screen, so the first thing drawn is the
+        product's own blue rather than a white rectangle. On a 2 GB Transsion
+        handset the gap between tapping the icon and the first React frame is
+        over a second, and a white flash in the middle of it is the difference
+        between an app that feels slow and one that feels broken.
+
+        `windowDisablePreview` is deliberately *not* set: the preview window is
+        the whole point.
+    -->
+    <style name="LaunchTheme" parent="AppTheme">
+        <item name="android:windowBackground">@drawable/launch_screen</item>
+    </style>
+
+</resources>

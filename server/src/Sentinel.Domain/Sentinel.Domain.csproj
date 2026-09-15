@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The rules the server holds with authority: reach (ADR-0002) and the
+       escalation plan (Phase 3). No ASP.NET, no EF Core, no clock. -->
+</Project>
