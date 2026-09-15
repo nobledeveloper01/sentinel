@@ -32,3 +32,28 @@ Vitals had one line — nothing clinical is computed. Sentinel has six, and the
 one that bit most often was the one that looks harmless: *no feature that
 identifies who else is nearby and available*. Half the "community" ideas that
 come naturally are exactly that feature with a different name.
+
+**A name at the start of a sentence walked through the screen.** The first
+rule wanted a character before the capitalised pair, and *Chukwuemeka Okafor
+took the generator* is where a name most often is. Any pair now, with the
+second word excused only when it is the word for a place.
+
+**The copy gate's first catch was TypeScript.** `${official[0]!.label}` has an
+exclamation mark in it. The rule reads what follows the mark now.
+
+**One of 146 contrast pairs failed**: dark green on the highest glass over the
+teal wash. An eye would not have found it; the test did, in a second.
+
+**The Xcode licence lapsed mid-build and every `python3` is Xcode's.** The
+scripts exited 69 with a sentence about a licence, and — worse — the edits
+piped through a heredoc silently did not happen, because the shim printed
+its sentence and returned before reading stdin. Three files were found
+unedited an hour later. The Command Line Tools carry their own `python3`,
+`git` and `make`, and the session's PATH points there until the licence is
+accepted. The habit for next time: check the exit code of an edit, not just
+the absence of an error.
+
+**Grid's README is the shape.** The user asked for it after the first cut,
+which was a summary. Twelve sections: the problem, how it works, the app,
+each layer, quick start, correctness notes, the pipeline, data handling,
+development, layout, status, licensing. The screenshots wait on the licence.
