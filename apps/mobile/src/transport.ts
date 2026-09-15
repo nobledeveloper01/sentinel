@@ -43,6 +43,7 @@ export interface HeldAlert {
   readonly envelopes: ReadonlyArray<{ to: string; nonce: string; ciphertext: string; from?: string }>;
   readonly smsFallback: ReadonlyArray<{ to: string; text: string }>;
   readonly attempts: ReadonlyArray<{ channel: string; toPhoneHash: string; outcome: string; atMinutes: number }>;
+  readonly acknowledgements: ReadonlyArray<{ byPhoneHash: string; atMinutes: number }>;
 }
 
 export interface CircleRow {
@@ -63,6 +64,8 @@ export interface MemoryServer extends Transport {
   readonly openedUnderDuress: Set<string>;
   /** The invitee's phone accepting, which only her phone can do. */
   accept(owner: string, withPhoneHash: string, language: string): void;
+  /** A member's phone acknowledging an alert, which only her phone can do. */
+  ack(alertId: string, byPhoneHash: string, atMinutes: number): void;
   /** Every byte the server has been handed, for a test to search. */
   everythingHeld(): string;
   refuse(on: boolean): void;
@@ -85,6 +88,10 @@ export function memoryTransport(): MemoryServer {
     circles,
     cancels,
     openedUnderDuress,
+    ack(alertId, byPhoneHash, atMinutes) {
+      const a = alerts.get(alertId);
+      if (a) alerts.set(alertId, { ...a, acknowledgements: [...a.acknowledgements, { byPhoneHash, atMinutes }] });
+    },
     accept(owner, withPhoneHash, language) {
       const row = circles.find((c) => c.owner === owner && c.withPhoneHash === withPhoneHash);
       if (row) {
@@ -140,7 +147,7 @@ export function memoryTransport(): MemoryServer {
           ...b.envelopes.map((e) => ({ channel: 'push', toPhoneHash: e.to, outcome: 'unknown', atMinutes: b.atMinutes })),
           ...b.smsFallback.map((s) => ({ channel: 'serverSms', toPhoneHash: s.to, outcome: sms ? 'delivered' : 'failed', atMinutes: b.atMinutes })),
         ];
-        alerts.set(b.id, { ...b, attempts });
+        alerts.set(b.id, { ...b, attempts, acknowledgements: [] });
         return reply(200, { id: b.id });
       }
       const cancel = /^\/alerts\/(.+)\/cancel$/.exec(path);

@@ -10,18 +10,27 @@ import { memoryTransport } from '../src/transport';
 export function evening(position: { lat: number; lon: number } | null = null) {
   const server = memoryTransport();
   const shared: string[] = [];
+  let minute = 1000;
   const services: Services = {
     transport: server,
     position: () => Promise.resolve(position),
     keys: generateKeyPair(),
     signing: signingKeyPair(),
-    now: () => 1000,
+    now: () => minute,
     share: (text) => {
       shared.push(text);
       return Promise.resolve();
     },
   };
-  return { server, services, shared };
+  /** A minute passes, and the app's own clock notices. Needs fake timers. */
+  const tick = async () => {
+    minute += 1;
+    await act(async () => {
+      jest.advanceTimersByTime(15_000);
+      await Promise.resolve();
+    });
+  };
+  return { server, services, shared, tick };
 }
 
 /** A press whose side effects reach the server: let the promises settle inside act. */

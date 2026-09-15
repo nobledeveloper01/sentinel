@@ -44,7 +44,8 @@ describe('the alert path', () => {
   });
 
   test('an invitation shares nothing until the other phone accepts; then the alert is sealed to her and the server never sees the coordinate', async () => {
-    const { server, services } = evening({ lat: 6.5244, lon: 3.3792 });
+    jest.useFakeTimers();
+    const { server, services, tick } = evening({ lat: 6.5244, lon: 3.3792 });
     const bola = { id: 'bola', phoneHash: phoneHash('0803 000 0001'), name: 'Bola', keys: generateKeyPair() };
     await register(server, bola, 1);
     render(<App services={services} />);
@@ -63,9 +64,7 @@ describe('the alert path', () => {
     await tap(t.panic);
     await waitFor(() => expect(server.alerts.size).toBe(1));
     expect([...server.alerts.values()][0]!.envelopes).toHaveLength(0);
-    jest.useFakeTimers();
     await holdToCancel();
-    jest.useRealTimers();
     // Bola accepts on her phone, in Yorùbá; the stranger never does.
     server.accept(myId, bola.phoneHash, 'yo');
     server.accept(myId, phoneHash('0803 000 0002'), 'en'); // accepted, but her phone has no key
@@ -85,6 +84,11 @@ describe('the alert path', () => {
     await waitFor(() => expect(screen.getByText(`0803 000 0002 · ${t.notSealed}`)).toBeTruthy());
     expect(screen.getByText(`0803 000 0001 · ${t.notYetAcknowledged}`)).toBeTruthy();
     expect(screen.getByTestId('delivery').props.children).toBe(t.alertSentTo);
+    // Bola acknowledges on her phone; a minute later this one knows.
+    server.ack(held.id, bola.phoneHash, 1001);
+    await tick();
+    await waitFor(() => expect(screen.getByText(`0803 000 0001 · ${t.acknowledgedBy}`)).toBeTruthy());
+    jest.useRealTimers();
   });
 
   test('the settings switches turn glass off and motion off at act time', () => {

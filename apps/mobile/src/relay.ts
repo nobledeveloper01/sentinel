@@ -96,3 +96,11 @@ export async function acceptedMembers(transport: Transport, owner: string): Prom
 function asLanguage(l: string): C.Language {
   return l === 'pcm' || l === 'yo' || l === 'ha' || l === 'ig' ? l : 'en';
 }
+
+/** Who has acknowledged, as the server holds it — polled while an alert runs. */
+export async function acknowledgements(transport: Transport, alertId: string): Promise<ReadonlyArray<{ by: string; at: number }>> {
+  const r = await transport.get(`/alerts/${alertId}`);
+  if (!r.ok) return [];
+  const acks = (r.body as { acknowledgements?: ReadonlyArray<{ byPhoneHash: string; atMinutes: number }> }).acknowledgements ?? [];
+  return acks.map((a) => ({ by: a.byPhoneHash, at: a.atMinutes }));
+}

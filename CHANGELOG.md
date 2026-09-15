@@ -7,6 +7,9 @@ project is pre-release, so everything is under Unreleased until v1.0.
 
 ### Added
 
+- **Who has acknowledged**, asked of the server every tick while an alert
+  runs, each new one an event on the record — so *not yet* on the screen
+  becomes *acknowledged* when her phone says so, and never before.
 - **The first launch is the rules.** Four sentences — the number first and
   largest, *your circle and nobody else*, how to send silently and how to
   end an alert, *never about a person* — and one action, which opens onto

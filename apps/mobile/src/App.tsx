@@ -8,7 +8,7 @@ import { alert as A, circle as C, duress as D, journey as J } from '@sentinel/do
 import { JourneyCard } from './components/JourneyCard';
 import { Mesh } from './components/Mesh';
 import { ThemeProvider, useTheme } from './design/theme';
-import { acceptedMembers, register, relayAlert } from './relay';
+import { acceptedMembers, acknowledgements, register, relayAlert } from './relay';
 import { AlertScreen } from './screens/AlertScreen';
 import { CircleScreen } from './screens/CircleScreen';
 import { HomeScreen } from './screens/HomeScreen';
@@ -83,6 +83,25 @@ export function Root({ services, state: s, dispatch }: { services: Services; sta
     };
     // The alert id is the one thing that should re-run this; the rest is read once.
   }, [alertId]);
+
+  // Who has acknowledged, asked of the server every tick while an alert
+  // runs; each new one becomes an event on the record.
+  const acked = (s.alert?.events.filter((e) => e.kind === 'acknowledged').map((e) => (e as { by: string }).by) ?? []).join(',');
+  useEffect(() => {
+    if (!alertId) return;
+    let stale = false;
+    const known = acked.split(',');
+    void acknowledgements(services.transport, alertId).then((acks) => {
+      if (stale) return;
+      for (const a of acks) {
+        if (!known.includes(a.by)) dispatch({ type: 'alertEvent', event: { kind: 'acknowledged', at: a.at, by: a.by } });
+      }
+    });
+    return () => {
+      stale = true;
+    };
+    // Every tick of the minute, for as long as the alert runs.
+  }, [alertId, now, services.transport, dispatch, acked]);
 
   // Who has accepted, asked of the server whenever the circle is opened:
   // acceptance happens on the other phone, so this is the only way to learn it.
