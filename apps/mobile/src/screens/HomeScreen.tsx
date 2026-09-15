@@ -21,6 +21,7 @@ export function HomeScreen({
   onPanic,
   onJourney,
   onCircle,
+  onSettings,
 }: {
   state: string | null;
   /** A journey under way, above the fold, or nothing. */
@@ -28,6 +29,7 @@ export function HomeScreen({
   onPanic: () => void;
   onJourney: () => void;
   onCircle: () => void;
+  onSettings: () => void;
 }) {
   const insets = useSafeAreaInsets();
   const official = numbers.numbersFor(state);
@@ -67,6 +69,8 @@ export function HomeScreen({
         <SecondaryAction label={t.journeyStart} onPress={onJourney} />
         <Gap h={space.s} />
         <SecondaryAction label={t.circle} onPress={onCircle} />
+        <Gap h={space.s} />
+        <SecondaryAction label={t.settings} onPress={onSettings} />
       </ScrollView>
     </View>
   );

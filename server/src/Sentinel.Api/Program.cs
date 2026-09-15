@@ -32,6 +32,14 @@ app.MapPost("/accounts", async (RegisterAccount req, SentinelDbContext db, Cance
     return Results.Ok(new { id = row.Id });
 });
 
+// A member's public key, by phone hash, so a phone can seal to it. The
+// server hands out public halves and holds nothing that opens them.
+app.MapGet("/keys/{phoneHash}", async (string phoneHash, SentinelDbContext db, CancellationToken ct) =>
+{
+    var row = await db.Accounts.FirstOrDefaultAsync(a => a.PhoneHash == phoneHash, ct);
+    return row is null ? Results.NotFound() : Results.Ok(new { publicKey = row.PublicKey });
+});
+
 // The circle: invited, then accepted in a language; either side removes it now.
 app.MapPost("/circle/invite", async (Invite req, SentinelDbContext db, CancellationToken ct) =>
 {
@@ -93,7 +101,7 @@ app.MapGet("/journeys/{id}", async (string id, SentinelDbContext db, Cancellatio
 // Alerts: envelopes in, envelopes out, and a record of every attempt.
 app.MapPost("/alerts", async (RelayAlert req, Store store, CancellationToken ct) =>
 {
-    var envelopes = req.Envelopes.Select(e => (e.To, Convert.FromBase64String(e.Nonce), Convert.FromBase64String(e.Ciphertext)));
+    var envelopes = req.Envelopes.Select(e => (e.To, Convert.FromBase64String(e.From ?? ""), Convert.FromBase64String(e.Nonce), Convert.FromBase64String(e.Ciphertext)));
     var sms = (req.SmsFallback ?? []).Select(s => (s.To, s.Text));
     var row = await store.RelayAlertAsync(req.Id, req.From, req.AtMinutes, envelopes, sms, ct);
     return Results.Ok(new { row.Id });
@@ -102,7 +110,7 @@ app.MapGet("/alerts/{id}", async (string id, SentinelDbContext db, CancellationT
 {
     var a = await db.Alerts.FindAsync([id], ct);
     if (a is null) return Results.NotFound();
-    var envelopes = await db.Envelopes.Where(e => e.Alert == id).Select(e => new { e.ToPhoneHash, Nonce = Convert.ToBase64String(e.Nonce), Ciphertext = Convert.ToBase64String(e.Ciphertext) }).ToListAsync(ct);
+    var envelopes = await db.Envelopes.Where(e => e.Alert == id).Select(e => new { e.ToPhoneHash, From = Convert.ToBase64String(e.FromKey), Nonce = Convert.ToBase64String(e.Nonce), Ciphertext = Convert.ToBase64String(e.Ciphertext) }).ToListAsync(ct);
     var attempts = await db.Attempts.Where(t => t.Alert == id).Select(t => new { t.Channel, t.ToPhoneHash, t.Outcome, t.AtMinutes }).ToListAsync(ct);
     var acks = await db.Acknowledgements.Where(k => k.Alert == id).Select(k => new { k.ByPhoneHash, k.AtMinutes }).ToListAsync(ct);
     return Results.Ok(new { a.Id, a.From, a.AtMinutes, a.Cancelled, a.CancelledUnderDuress, envelopes, attempts, acknowledgements = acks });
@@ -129,7 +137,7 @@ public sealed record RegisterAccount(string Id, string PhoneHash, string PublicK
 public sealed record Invite(string Owner, string WithPhoneHash);
 public sealed record Accept(string Owner, string WithPhoneHash, string Language);
 public sealed record RegisterJourney(string Id, string Account, long ExpectedMinutes, int GraceMinutes, List<string> Notify);
-public sealed record Envelope(string To, string Nonce, string Ciphertext);
+public sealed record Envelope(string To, string Nonce, string Ciphertext, string? From = null);
 public sealed record SmsFallback(string To, string Text);
 public sealed record RelayAlert(string Id, string From, long AtMinutes, List<Envelope> Envelopes, List<SmsFallback>? SmsFallback);
 public sealed record Acknowledge(string By, long AtMinutes);

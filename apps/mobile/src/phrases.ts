@@ -55,4 +55,10 @@ export const t = {
   journeyGo: 'Start',
   journeyUnderway: (where: string, minutes: number) => `On the way to ${where}. Expected in ${minutes} minutes.`,
   journeyEscalated: 'You did not confirm. Your circle has been told where you were.',
+  yourNumber: 'Your number',
+  yourName: 'Your name, as your circle knows you',
+  settingsHint: 'Your number becomes a code before it leaves this phone. Your name is only ever sent to your circle.',
+  save: 'Save',
+  notSealed: 'could not be reached: their phone has not joined Sentinel yet',
+  noPosition: 'Sent without a position. This phone had no fix.',
 } as const;

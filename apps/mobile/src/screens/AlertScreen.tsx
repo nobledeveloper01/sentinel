@@ -17,12 +17,14 @@ import { t } from '../phrases';
 export function AlertScreen({
   record,
   circle,
+  unreachable = [],
   state,
   nowMinutes,
   onCancel,
 }: {
   record: alert.AlertRecord;
   circle: ReadonlyArray<{ hash: string; name: string }>;
+  unreachable?: ReadonlyArray<string>;
   state: string | null;
   nowMinutes: number;
   onCancel: () => void;
@@ -52,9 +54,10 @@ export function AlertScreen({
         ) : null}
         {acks.map((a) => {
           const m = circle.find((x) => x.hash === a.who);
+          const line = unreachable.includes(a.who) ? t.notSealed : a.at === null ? t.notYetAcknowledged : t.acknowledgedBy;
           return (
-            <Text key={a.who} variant="body" accessibilityLabel={`${m?.name ?? a.who}: ${a.at === null ? t.notYetAcknowledged : t.acknowledgedBy}`}>
-              {m?.name ?? a.who} · {a.at === null ? t.notYetAcknowledged : t.acknowledgedBy}
+            <Text key={a.who} variant="body" tone={unreachable.includes(a.who) ? 'attention' : 'primary'} accessibilityLabel={`${m?.name ?? a.who}: ${line}`}>
+              {m?.name ?? a.who} · {line}
             </Text>
           );
         })}

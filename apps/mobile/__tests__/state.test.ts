@@ -47,6 +47,13 @@ describe('the app state', () => {
     expect(s.alert?.events[0]).toMatchObject({ kind: 'triggered', path: 'journey' });
   });
 
+  test('two alerts in the same minute do not share an id', () => {
+    let s = run([{ type: 'panic', now: 10, path: 'screen', silent: false }]);
+    const first = s.alert!.id;
+    s = run([{ type: 'cancelAlert', now: 10, underDuress: false }, { type: 'panic', now: 10, path: 'screen', silent: false }], s);
+    expect(s.alert!.id).not.toBe(first);
+  });
+
   test('arriving ends the journey and nobody is told', () => {
     const s = run([
       {

@@ -238,6 +238,14 @@ The domain knows nothing of this package.
 
 ### `apps/mobile` — the screens, and what the domain cannot own
 
+`src/relay.ts` is the one place bytes leave the phone: it fetches each
+accepted member's public key by phone hash, seals the position — or *no
+position*, the same length — to each, hands the server an SMS in her language
+with a link and no coordinate, and reads back the attempts the server
+recorded so the record says what happened. `src/transport.ts` is the wire,
+and a server in memory that a test can search for anything it should not
+hold.
+
 React Native 0.87 on the New Architecture. `src/design/tokens.ts` is
 `DESIGN.md` as code and the only place a colour lives; `src/phrases.ts` is
 every word the app says, so the copy gate can read them. The components are
@@ -398,6 +406,8 @@ apps/mobile/src/design/         tokens (DESIGN.md as code) and the theme
 apps/mobile/src/components/     the mesh, the glass, the two actions, the text
 apps/mobile/src/screens/        the home, the alert, the circle, the journey
 apps/mobile/src/state.ts        the one function that changes what the app holds
+apps/mobile/src/relay.ts        the one place bytes leave the phone: seal, send, read back the attempts
+apps/mobile/src/transport.ts    the wire; and a server in memory a test can search
 apps/mobile/src/phrases.ts      every word the app says
 apps/mobile/__tests__/          the contrast pairs; the home to the alert and back;
                                 the circle and the journey; an evening through the reducer
@@ -419,10 +429,10 @@ machine and in CI; the envelope, the circle screen with *who can see me* and
 the journey screen with its plan shown before it starts are built on top of
 it.
 
-**18 domain tests including the 800-world reach property, 4 crypto tests
-including the server-cannot-open proof, 154 app tests including 146 contrast
-pairs, 6 server tests including the cannot-read proof and parity over 200
-worlds.**
+**18 domain tests including the 800-world reach property, 6 crypto tests
+including the server-cannot-open proof, 163 app tests including 146 contrast
+pairs and an evening against a server in memory, 7 server tests including the
+cannot-read proof and parity over 200 worlds.**
 
 | | |
 |---|---|
@@ -434,8 +444,8 @@ worlds.**
 | Phase | State |
 | --- | --- |
 | **0** Foundation | Built and green in CI; the Critical Alerts application (R5) is a form to Apple |
-| **1** Crypto and the circle | **current** — the envelope and its cannot-open test, the circle screen and *who can see me* are built; device keys held on the phone and rotation are next |
-| **2** The panic path | The record and the honest delivery state are built; every trigger path and channel needs a handset (R1, R2, R4) |
+| **1** Crypto and the circle | **current** — the envelope, the relay that seals an alert to every accepted member, the circle screen and *who can see me*; the keys are generated per launch until the Keychain module holds them, which needs a handset |
+| **2** The panic path | The record, the honest delivery state and the server channel are built; the position, every trigger path and the other channels need a handset (R1, R2, R4) |
 | **3** Safe arrival | The plan, the states, the geofence, the server's timer and the screen that shows the plan before it starts are built and tested; the phone-off gate (R3) needs a phone |
 | **4** Trust surfaces → v1.0 | Duress and the cancel are built; silent mode, the privacy screen, the record's export and organisations are to build |
 | **5** The reach engine | **Built and property-tested**, ahead of order, because the riskiest surface should have the most tested rule behind it |

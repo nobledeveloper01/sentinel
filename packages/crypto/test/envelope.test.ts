@@ -6,7 +6,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { decodePosition, encodePosition, generateKeyPair, open, phoneHash, seal } from '../src/index.ts';
+import { decodePosition, encodeNoPosition, encodePosition, fromBase64, generateKeyPair, open, phoneHash, seal, toBase64 } from '../src/index.ts';
 
 test('the member opens it; the server, holding only public keys, cannot', () => {
   const phone = generateKeyPair();
@@ -48,4 +48,18 @@ test('the same number in any Nigerian spelling hashes the same; a different numb
   assert.equal(phoneHash('2348031234567'), a);
   assert.equal(a.length, 64);
   assert.notEqual(phoneHash('08031234568'), a);
+});
+
+test('no position is sealed the same length as a position, and decodes as null rather than as a coordinate', () => {
+  const some = encodePosition(6.5244, 3.3792, 1_000_000);
+  const none = encodeNoPosition(1_000_000);
+  assert.equal(none.length, some.length);
+  assert.deepEqual(decodePosition(none), { lat: null, lon: null, atMinutes: 1_000_000 });
+});
+
+test('base64 round-trips every byte and refuses what is not base64', () => {
+  const bytes = Uint8Array.from({ length: 256 }, (_, i) => i);
+  assert.deepEqual(fromBase64(toBase64(bytes)), bytes);
+  assert.equal(toBase64(Uint8Array.from([104, 105])), 'aGk=');
+  assert.throws(() => fromBase64('not*base64'));
 });

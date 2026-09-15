@@ -56,9 +56,50 @@ export function encodePosition(lat: number, lon: number, atMinutes: number): Uin
   return utf8ToBytes(`${lat.toFixed(5)},${lon.toFixed(5)},${atMinutes}`);
 }
 
-export function decodePosition(bytes: Uint8Array): { lat: number; lon: number; atMinutes: number } {
-  const [lat, lon, at] = bytesToUtf8(bytes).split(',');
+/**
+ * No position, honestly: the phone had no fix when the alert went. Sealed
+ * like a position, so the server cannot tell the two apart by length.
+ */
+export function encodeNoPosition(atMinutes: number): Uint8Array {
+  return utf8ToBytes(`?,?,${atMinutes}`.padEnd(`${(0).toFixed(5)},${(0).toFixed(5)},${atMinutes}`.length, ' '));
+}
+
+export function decodePosition(bytes: Uint8Array): { lat: number; lon: number; atMinutes: number } | { lat: null; lon: null; atMinutes: number } {
+  const [lat, lon, at] = bytesToUtf8(bytes).trim().split(',');
+  if (lat === '?') return { lat: null, lon: null, atMinutes: Number(at) };
   return { lat: Number(lat), lon: Number(lon), atMinutes: Number(at) };
+}
+
+/** Bytes as the wire carries them, and back. Base64, no dependency. */
+const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+export function toBase64(bytes: Uint8Array): string {
+  let out = '';
+  for (let i = 0; i < bytes.length; i += 3) {
+    const a = bytes[i]!;
+    const b = bytes[i + 1];
+    const c = bytes[i + 2];
+    const n = (a << 16) | ((b ?? 0) << 8) | (c ?? 0);
+    out += B64[(n >> 18) & 63]! + B64[(n >> 12) & 63]! + (b === undefined ? '=' : B64[(n >> 6) & 63]!) + (c === undefined ? '=' : B64[n & 63]!);
+  }
+  return out;
+}
+
+export function fromBase64(text: string): Uint8Array {
+  const clean = text.replace(/=+$/, '');
+  const out: number[] = [];
+  let bits = 0;
+  let acc = 0;
+  for (const ch of clean) {
+    const v = B64.indexOf(ch);
+    if (v < 0) throw new Error('not base64');
+    acc = (acc << 6) | v;
+    bits += 6;
+    if (bits >= 8) {
+      bits -= 8;
+      out.push((acc >> bits) & 255);
+    }
+  }
+  return Uint8Array.from(out);
 }
 
 /**

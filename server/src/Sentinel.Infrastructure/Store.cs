@@ -50,6 +50,8 @@ public sealed class EnvelopeRow
     public long Id { get; set; }
     public string Alert { get; set; } = "";
     public string ToPhoneHash { get; set; } = "";
+    /// <summary>The sender's public key, so the member can derive the same key. Public; opens nothing on its own.</summary>
+    public byte[] FromKey { get; set; } = [];
     public byte[] Nonce { get; set; } = [];
     public byte[] Ciphertext { get; set; } = [];
 }
@@ -134,13 +136,13 @@ public sealed class Store(SentinelDbContext db, ISmsGateway sms)
     }
 
     /// <summary>An alert arrives as envelopes; the server relays them and records each attempt.</summary>
-    public async Task<AlertRow> RelayAlertAsync(string id, string from, long atMinutes, IEnumerable<(string to, byte[] nonce, byte[] ciphertext)> envelopes, IEnumerable<(string to, string text)> smsFallback, CancellationToken ct)
+    public async Task<AlertRow> RelayAlertAsync(string id, string from, long atMinutes, IEnumerable<(string to, byte[] fromKey, byte[] nonce, byte[] ciphertext)> envelopes, IEnumerable<(string to, string text)> smsFallback, CancellationToken ct)
     {
         var row = new AlertRow { Id = id, From = from, AtMinutes = atMinutes };
         db.Alerts.Add(row);
-        foreach (var (to, nonce, ciphertext) in envelopes)
+        foreach (var (to, fromKey, nonce, ciphertext) in envelopes)
         {
-            db.Envelopes.Add(new EnvelopeRow { Alert = id, ToPhoneHash = to, Nonce = nonce, Ciphertext = ciphertext });
+            db.Envelopes.Add(new EnvelopeRow { Alert = id, ToPhoneHash = to, FromKey = fromKey, Nonce = nonce, Ciphertext = ciphertext });
             // Push is a device's registration away; here it is recorded as attempted.
             db.Attempts.Add(new AttemptRow { Alert = id, Channel = "push", ToPhoneHash = to, Outcome = "unknown", AtMinutes = atMinutes });
         }

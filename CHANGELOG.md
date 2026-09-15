@@ -7,6 +7,24 @@ project is pre-release, so everything is under Unreleased until v1.0.
 
 ### Added
 
+- **The alert leaves the phone.** One envelope per accepted circle member,
+  sealed to her key fetched from the server by phone hash; an SMS the server
+  may send in her language with the position as a link and never a
+  coordinate; and the attempts the server reports become the record's own
+  events, so the screen's *told / reaching / could not be reached* is what
+  happened and not what was hoped. A server that cannot be reached leaves
+  every member *failed*. A member whose phone has not joined is named on the
+  alert screen as unreachable, never shown as told. No position is sealed as
+  *no position*, the same length as a position, so the server cannot tell.
+  *Abuse model:* the server holds envelopes, public keys and hashes; a test
+  searches everything it was handed for the coordinate, the name and the
+  number, and finds none.
+- **Settings.** Your number — hashed before it leaves the phone — and the
+  name your circle knows you by; plain surfaces, less motion and large
+  controls, each read at act time.
+- **The circle asks the server who has accepted**, because acceptance happens
+  on the other phone. An invitation shares nothing until then, in the app and
+  on the server both.
 - **The envelope.** `packages/crypto`: X25519, HKDF and XChaCha20-Poly1305
   from `@noble`, sealing a position for one circle member; a test hands a
   party everything the server holds and it cannot open it. A phone number

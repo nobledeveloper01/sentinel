@@ -83,3 +83,29 @@ nothing in it — found because the home test lost its demo circle.
 `TextEncoder` is not a thing TypeScript will promise a React Native target
 has. `@noble/hashes/utils` has `utf8ToBytes` and `bytesToHex`, which is what
 the envelope uses now on both sides.
+
+## 2026-09-15, evening — the alert leaves the phone
+
+The relay: keys fetched by hash, one envelope per accepted member, the SMS
+in her language with a link and never a coordinate, and the server's own
+record of attempts read back into the alert record, so *told* on the screen
+means the server said so. A server in memory that the app talks to in tests
+the way it will talk to the .NET one, with `everythingHeld()` so a test can
+search for the coordinate, the name and the number and find none.
+
+**Two alerts in one minute had one id.** The reducer named an alert by its
+minute; the test that panicked, cancelled and panicked again inside a fixed
+clock found the second alert overwriting the first on the server and the
+relay effect never re-running, because nothing about the id had changed. The
+id carries the count of past alerts now. A clock that does not move is a good
+way to find what was keyed on it.
+
+**The lint wanted the fakes to be honest about being synchronous.** An
+`async` method with no `await` is a promise for nothing; the memory server's
+`get` and `post` are plain functions wrapped in `Promise.resolve`, and a test
+that presses a button whose side effect reaches the server awaits a tick
+inside `act`, which is what the effect needed anyway.
+
+The envelope row carries the sender's public key now, because the member
+cannot derive the shared key without it, and the server's `/keys/{hash}`
+hands out public halves — the thing the server is allowed to know.
