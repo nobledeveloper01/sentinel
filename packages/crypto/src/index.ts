@@ -9,10 +9,10 @@
  * The domain knows nothing of this file; the app and the tests do.
  */
 import { xchacha20poly1305 } from '@noble/ciphers/chacha';
-import { x25519 } from '@noble/curves/ed25519';
+import { ed25519, x25519 } from '@noble/curves/ed25519';
 import { hkdf } from '@noble/hashes/hkdf';
 import { sha256 } from '@noble/hashes/sha256';
-import { bytesToHex, bytesToUtf8, randomBytes, utf8ToBytes } from '@noble/hashes/utils';
+import { bytesToHex, bytesToUtf8, hexToBytes, randomBytes, utf8ToBytes } from '@noble/hashes/utils';
 
 export interface KeyPair {
   readonly publicKey: Uint8Array;
@@ -118,4 +118,47 @@ export function phoneHash(raw: string): string {
 /** A PIN as the app keeps it: never the digits. The domain compares hashes. */
 export function pinHash(digits: string): string {
   return bytesToHex(sha256(utf8ToBytes(`sentinel pin v1:${digits.replace(/\D/g, '')}`)));
+}
+
+/**
+ * The record's export (ADR-0006 #16): every event as one JSON line with its
+ * keys in a fixed order, then the phone's Ed25519 public key and a signature
+ * over every byte before the key line — the same shape Vitals' audit uses,
+ * so `scripts/verify-record.py` is the same hundred lines of plain Python.
+ */
+export function signingKeyPair(random: (n: number) => Uint8Array = randomBytes): KeyPair {
+  const secretKey = random(32);
+  return { publicKey: ed25519.getPublicKey(secretKey), secretKey };
+}
+
+function canonical(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
+  if (value && typeof value === 'object') {
+    const o = value as Record<string, unknown>;
+    return `{${Object.keys(o)
+      .sort()
+      .map((k) => `${JSON.stringify(k)}:${canonical(o[k])}`)
+      .join(',')}}`;
+  }
+  return JSON.stringify(value);
+}
+
+export function exportRecord(record: { readonly id: string; readonly events: ReadonlyArray<unknown> }, signing: KeyPair): string {
+  const body = `# sentinel alert ${record.id}\n` + record.events.map((e) => canonical(e) + '\n').join('');
+  const sig = ed25519.sign(utf8ToBytes(body), signing.secretKey);
+  return `${body}# public-key ed25519 ${bytesToHex(signing.publicKey)}\n# signature ed25519 ${bytesToHex(sig)}\n`;
+}
+
+/** The check the app itself can run on a file it is handed. */
+export function verifyExport(text: string): { ok: true; publicKey: string; lines: number } | { ok: false } {
+  const pk = /^# public-key ed25519 ([0-9a-f]{64})$/m.exec(text);
+  const sig = /^# signature ed25519 ([0-9a-f]{128})$/m.exec(text);
+  if (!pk || !sig) return { ok: false };
+  const body = text.slice(0, pk.index);
+  try {
+    if (!ed25519.verify(hexToBytes(sig[1]!), utf8ToBytes(body), hexToBytes(pk[1]!))) return { ok: false };
+  } catch {
+    return { ok: false };
+  }
+  return { ok: true, publicKey: pk[1]!, lines: body.split('\n').length - 2 };
 }

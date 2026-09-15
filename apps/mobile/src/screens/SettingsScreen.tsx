@@ -23,6 +23,9 @@ export function SettingsScreen({
   onSave,
   onPref,
   onPins,
+  knows,
+  hasRecord,
+  onShareRecord,
   onBack,
 }: {
   phone: string;
@@ -31,6 +34,10 @@ export function SettingsScreen({
   onSave: (phone: string, name: string) => void;
   onPref: (key: keyof Prefs, on: boolean) => void;
   onPins: (pins: D.Pins) => void;
+  /** The lines of "what Sentinel knows", derived from state. */
+  knows: ReadonlyArray<string>;
+  hasRecord: boolean;
+  onShareRecord: () => void;
   onBack: () => void;
 }) {
   const [pin1, setPin1] = useState('');
@@ -103,6 +110,25 @@ export function SettingsScreen({
           }}
         />
         <Gap />
+        <Glass depth="low" testID="knows">
+          <Text variant="title">{t.knows}</Text>
+          <Gap h={space.xs} />
+          {knows.map((line) => (
+            <Text key={line} variant="body">
+              {describeKnown(line)}
+            </Text>
+          ))}
+          <Text variant="small" tone="secondary">
+            {t.knowsNothingElse}
+          </Text>
+        </Glass>
+        <Gap />
+        <SecondaryAction label={t.shareRecord} disabled={!hasRecord} onPress={onShareRecord} />
+        <Gap h={space.xs} />
+        <Text variant="small" tone="secondary">
+          {t.shareRecordHint}
+        </Text>
+        <Gap />
         <SecondaryAction label={t.back} onPress={onBack} />
       </ScrollView>
     </View>
@@ -116,3 +142,22 @@ const styles = StyleSheet.create({
   grow: { flex: 1 },
   input: { borderWidth: 1, borderRadius: radius.input, paddingHorizontal: space.m, minHeight: target.standard },
 });
+
+/** A fact about what is held, as a sentence. The facts come from `knows()` in state; only the words live here. */
+function describeKnown(line: string): string {
+  const [key, value] = line.split(':', 2) as [string, string];
+  switch (key) {
+    case 'number':
+      return value === 'none' ? t.knowsNoNumber : t.knowsNumber(value);
+    case 'name':
+      return value === 'none' ? '' : t.knowsName(value);
+    case 'circle':
+      return t.knowsCircle(Number(value));
+    case 'alerts':
+      return t.knowsAlerts(Number(value));
+    case 'keys':
+      return t.knowsKeys;
+    default:
+      return '';
+  }
+}

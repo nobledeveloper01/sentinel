@@ -225,7 +225,7 @@ import each other:
 | `public/screen.ts` | The on-device screening rules and the fail-closed admission |
 | `public/corrections.ts` | The audience a correction must reach |
 
-### `packages/crypto` — the envelope
+### `packages/crypto` — the envelope, and the record's signature
 
 X25519 agreement, HKDF, XChaCha20-Poly1305, from the audited `@noble`
 packages in pure TypeScript, so the phone and Node run the same bytes with no
@@ -234,7 +234,12 @@ native module to trust. `seal` takes a position and one member's public key;
 server holds — every public key and the envelope — and it cannot open it. A
 phone number becomes the circle's name for a person here too: E.164, then
 SHA-256, so the server matches invitations on a hash and never holds a number.
-The domain knows nothing of this package.
+The record's export is one JSON line per event in a fixed key order, the
+phone's Ed25519 public key, and a signature over every byte before it — the
+same shape Vitals' audit uses, so
+[`scripts/verify-record.py`](scripts/verify-record.py) is the same hundred
+lines of plain Python, and the test runs it on a good file, a flipped byte
+and the wrong key. The domain knows nothing of this package.
 
 ### `apps/mobile` — the screens, and what the domain cannot own
 
@@ -417,7 +422,8 @@ server/src/Sentinel.Infrastructure/  the store and the SMS gateway interface
 server/src/Sentinel.Api/        the endpoints; Messages.cs is read by the copy gate
 server/tests/                   parity over the fixture; the server cannot read
 fixtures/reach.json             what the TypeScript said, for the C# to agree with
-scripts/                        the gates: boundary, doc, copy, design, mark, counts, fixtures
+scripts/                        the gates: boundary, doc, copy, design, mark, counts, fixtures;
+                                verify-record.py — the export checked with nothing but Python
 docs/adr/                       the eight decisions, and the six things refused
 ```
 
@@ -430,8 +436,9 @@ machine and in CI; the envelope, the circle screen with *who can see me* and
 the journey screen with its plan shown before it starts are built on top of
 it.
 
-**18 domain tests including the 800-world reach property, 6 crypto tests
-including the server-cannot-open proof, 170 app tests including 146 contrast
+**18 domain tests including the 800-world reach property, 8 crypto tests
+including the server-cannot-open proof and the export verified under Python,
+172 app tests including 146 contrast
 pairs, an evening against a server in memory and the cancel a coercer cannot
 perform, 7 server tests including the cannot-read proof and parity over 200
 worlds.**
@@ -449,7 +456,7 @@ worlds.**
 | **1** Crypto and the circle | **current** — the envelope, the relay that seals an alert to every accepted member, the circle screen and *who can see me*; the keys are generated per launch until the Keychain module holds them, which needs a handset |
 | **2** The panic path | The record, the honest delivery state and the server channel are built; the position, every trigger path and the other channels need a handset (R1, R2, R4) |
 | **3** Safe arrival | The plan, the states, the geofence, the server's timer and the screen that shows the plan before it starts are built and tested; the phone-off gate (R3) needs a phone |
-| **4** Trust surfaces → v1.0 | Duress, the two-finger cancel, the decoy and silent mode are on the screen; the privacy screen, the record's export and organisations are to build |
+| **4** Trust surfaces → v1.0 | Duress, the two-finger cancel, the decoy, silent mode, the privacy card derived from state and the signed export are built; organisations, onboarding and the audit on hardware are to build |
 | **5** The reach engine | **Built and property-tested**, ahead of order, because the riskiest surface should have the most tested rule behind it |
 | **6** Content screening | The on-device rules and the corpus are built; the server model and the face check are to build |
 | **7** The community layer → v1.1 | Not started, by design: the last thing built, behind three gates and a month in one city |

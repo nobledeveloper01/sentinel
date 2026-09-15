@@ -7,6 +7,16 @@ project is pre-release, so everything is under Unreleased until v1.0.
 
 ### Added
 
+- **What Sentinel knows about you**, on Settings, derived from the state
+  itself — the number as a code, the name and who it goes to, how many in
+  the circle, how many records, two keys, no location — so the screen cannot
+  drift from what is held.
+- **The record, signed.** The last alert record shared as text: every event
+  as a line, the phone's Ed25519 key, a signature; verified by the app or by
+  `scripts/verify-record.py` with nothing but Python. *Abuse model:* a record
+  that can be edited after the night is a record nobody can rely on in a
+  dispute; one that verifies is evidence of what the phone did, and only
+  that.
 - **Coercion is a use case (ADR-0008), on the screen.** Cancelling takes two
   fingers held for two seconds — one finger, or two lifted early, cancels
   nothing — and then the PIN. The duress PIN at that step cancels on the

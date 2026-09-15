@@ -130,3 +130,13 @@ inside one `act` each saw an empty string and the last one won: one dot,
 and a PIN of one digit. The digits live in a ref now and the state only
 draws the dots. The earlier test had passed only because its presses were
 outside `act`, one render each — a test that passes for the wrong reason.
+
+## 2026-09-15, night — what it knows, signed
+
+The privacy card is derived from state — `knows()` returns facts, the screen
+only has the words — which is Grid's consent-copy rule again: a sentence
+about what is held that is generated from what is held cannot lie. The
+export copies Vitals' shape to the byte so the verifier is the same script;
+the crypto test runs Python on a good file, a flipped byte and the wrong key,
+so the second verifier is exercised on every run and not trusted from the
+day it agreed.

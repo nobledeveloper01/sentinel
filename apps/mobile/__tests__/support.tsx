@@ -1,6 +1,6 @@
 import { act, fireEvent, screen } from '@testing-library/react-native';
 
-import { generateKeyPair } from '@sentinel/crypto';
+import { generateKeyPair, signingKeyPair } from '@sentinel/crypto';
 
 import type { Services } from '../src/services';
 import { memoryTransport } from '../src/transport';
@@ -8,8 +8,19 @@ import { memoryTransport } from '../src/transport';
 /** An evening on the phone, against a server in memory that a test can read. */
 export function evening(position: { lat: number; lon: number } | null = null) {
   const server = memoryTransport();
-  const services: Services = { transport: server, position: () => Promise.resolve(position), keys: generateKeyPair(), now: () => 1000 };
-  return { server, services };
+  const shared: string[] = [];
+  const services: Services = {
+    transport: server,
+    position: () => Promise.resolve(position),
+    keys: generateKeyPair(),
+    signing: signingKeyPair(),
+    now: () => 1000,
+    share: (text) => {
+      shared.push(text);
+      return Promise.resolve();
+    },
+  };
+  return { server, services, shared };
 }
 
 /** A press whose side effects reach the server: let the promises settle inside act. */

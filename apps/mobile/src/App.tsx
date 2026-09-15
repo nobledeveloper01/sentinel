@@ -2,7 +2,7 @@ import { useEffect, useMemo, useReducer, useState } from 'react';
 import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { phoneHash } from '@sentinel/crypto';
+import { exportRecord, phoneHash } from '@sentinel/crypto';
 import { alert as A, circle as C, duress as D, journey as J } from '@sentinel/domain';
 
 import { JourneyCard } from './components/JourneyCard';
@@ -16,7 +16,7 @@ import { JourneyScreen } from './screens/JourneyScreen';
 import { LockScreen } from './screens/LockScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { defaultServices, type Services } from './services';
-import { INITIAL, reduce, sharedJourneys } from './state';
+import { INITIAL, knows, reduce, sharedJourneys } from './state';
 
 /**
  * The shell: the home (the numbers, the panic action, the wedge), the alert
@@ -186,6 +186,12 @@ export function Root({ services, state: s, dispatch }: { services: Services; sta
         }}
         onPref={(key, on) => dispatch({ type: 'pref', key, on })}
         onPins={(pins) => dispatch({ type: 'pins', pins })}
+        knows={knows(s)}
+        hasRecord={s.past.length > 0}
+        onShareRecord={() => {
+          const last = s.past[s.past.length - 1];
+          if (last) void services.share(exportRecord(last, services.signing));
+        }}
         onBack={() => dispatch({ type: 'go', to: 'home' })}
       />
     );
