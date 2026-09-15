@@ -4,7 +4,7 @@ import { verifyExport } from '@sentinel/crypto';
 
 import App from '../src/App';
 import { t } from '../src/phrases';
-import { evening, holdToCancel, tap } from './support';
+import { evening, holdToCancel, tap } from '../test-support/support';
 
 jest.mock('react-native-safe-area-context', () => ({
   SafeAreaProvider: ({ children }: { children: unknown }) => children,

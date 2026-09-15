@@ -18,6 +18,6 @@
       "@sentinel/crypto": ["../../packages/crypto/src/index.ts"]
     }
   },
-  "include": ["src", "__tests__", "index.js", "app.json"],
+  "include": ["src", "__tests__", "test-support", "index.js", "app.json"],
   "exclude": ["node_modules", "ios", "android", "**/Pods"]
 }

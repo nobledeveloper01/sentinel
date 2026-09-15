@@ -140,3 +140,10 @@ export copies Vitals' shape to the byte so the verifier is the same script;
 the crypto test runs Python on a good file, a flipped byte and the wrong key,
 so the second verifier is exercised on every run and not trusted from the
 day it agreed.
+
+**A helper in `__tests__` is a test suite with no tests**, and Jest fails the
+run for it while still printing *172 passed*. My grep on the `Tests:` line
+read green over a failing `make ci` and the commit went out that way; the
+next push carries the fix. The helper lives in `test-support/` now, and the
+lesson is the one Tender wrote down: read the exit code, not the line you
+were looking for.

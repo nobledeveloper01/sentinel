@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
 import App from '../src/App';
 import { t } from '../src/phrases';
-import { enterPin, evening, fingers, tap } from './support';
+import { enterPin, evening, fingers, tap } from '../test-support/support';
 
 jest.mock('react-native-safe-area-context', () => ({
   SafeAreaProvider: ({ children }: { children: unknown }) => children,

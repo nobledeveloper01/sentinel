@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react-native';
 
 import App from '../src/App';
 import { t } from '../src/phrases';
-import { holdToCancel } from './support';
+import { holdToCancel } from '../test-support/support';
 
 // The provider is a native view that renders nothing under Jest without
 // metrics; the test wants the tree, not the insets.
