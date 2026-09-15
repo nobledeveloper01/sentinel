@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import App from '../src/App';
 import { t } from '../src/phrases';
+import { begin } from '../test-support/support';
 
 /** Whether a button is disabled, read the way a screen reader reads it. */
 const disabled = (name: string) =>
@@ -15,6 +16,7 @@ jest.mock('react-native-safe-area-context', () => ({
 describe('the circle', () => {
   test('is empty and says so; an invitation is listed as not yet accepted and shares nothing', () => {
     render(<App />);
+    begin();
     fireEvent.press(screen.getByRole('button', { name: t.circle }));
     expect(screen.getByText(t.circleEmpty)).toBeTruthy();
     expect(disabled(t.invite)).toBe(true);
@@ -31,6 +33,7 @@ describe('the circle', () => {
 describe('the journey', () => {
   test('shows the plan before it starts, refuses to start with nowhere to go, and sits on the home once under way', () => {
     render(<App />);
+    begin();
     fireEvent.press(screen.getByRole('button', { name: t.journeyStart }));
     expect(screen.getByTestId('plan').props.children).toBe(t.planLine(45, 60));
     expect(disabled(t.journeyGo)).toBe(true);

@@ -80,4 +80,10 @@ export const t = {
   knowsNothingElse: 'Nothing else. No location is kept; no location is ever readable by the server.',
   shareRecord: 'Share the last alert record',
   shareRecordHint: 'Signed by this phone. Anyone can check it with scripts/verify-record.py.',
+  welcome: 'Before anything else',
+  rule1: 'If you are in danger now, call the number. Sentinel is not a substitute for it.',
+  rule2: 'The alert button tells the people you chose where you are. Nobody else, ever.',
+  rule3: 'Hold the button to send silently. To end an alert, hold with two fingers for two seconds, then your PIN.',
+  rule4: 'Nothing here is ever about a person. Sentinel refuses names, descriptions and plates, on purpose.',
+  begin: 'Add my number',
 } as const;

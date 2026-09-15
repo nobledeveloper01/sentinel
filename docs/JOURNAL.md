@@ -162,3 +162,7 @@ The fixture generator found something too: *Two Fulani herdsmen* is blocked
 for the identifier and *for a name*, because "Two Fulani" is a capitalised
 pair. Right verdict, one reason too many. Left as it is — a second reason
 never hurts a block — and noted here in case it ever decides an appeal.
+
+The welcome screen last: four rules, the number, one button, and every test
+that renders the app now reads the rules first, which is a small honest cost
+of a screen nobody can skip.

@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react-native';
 
 import App from '../src/App';
 import { t } from '../src/phrases';
-import { holdToCancel } from '../test-support/support';
+import { begin, holdToCancel } from '../test-support/support';
 
 // The provider is a native view that renders nothing under Jest without
 // metrics; the test wants the tree, not the insets.
@@ -14,6 +14,7 @@ jest.mock('react-native-safe-area-context', () => ({
 describe('the home', () => {
   test('the official number comes first and the panic action is the one gradient control', () => {
     render(<App />);
+    begin();
     expect(screen.getByText('767')).toBeTruthy();
     expect(screen.getByText(t.notASubstitute)).toBeTruthy();
     expect(screen.getByRole('button', { name: t.panic })).toBeTruthy();
@@ -22,6 +23,7 @@ describe('the home', () => {
   test('the panic action opens the alert with the number still first, and the cancel ends it', async () => {
     jest.useFakeTimers();
     render(<App />);
+    begin();
     fireEvent.press(screen.getByRole('button', { name: t.panic }));
     expect(screen.getByTestId('delivery')).toBeTruthy();
     expect(screen.getByText('767')).toBeTruthy();

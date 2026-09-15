@@ -24,6 +24,8 @@ export interface Prefs {
 
 export interface AppState {
   readonly screen: Screen['name'];
+  /** The rules were read once; the home is shown after. */
+  readonly onboarded: boolean;
   readonly me: Me;
   readonly prefs: Prefs;
   readonly circle: C.Circle;
@@ -41,6 +43,7 @@ export interface AppState {
 
 export const INITIAL: AppState = {
   screen: 'home',
+  onboarded: false,
   me: { id: '', phoneHash: '', name: '' },
   prefs: { glass: true, reduced: false, large: false },
   circle: C.EMPTY,
@@ -56,6 +59,7 @@ export const INITIAL: AppState = {
 export type Action =
   | { readonly type: 'go'; readonly to: Screen['name'] }
   | { readonly type: 'me'; readonly me: Me }
+  | { readonly type: 'onboarded' }
   | { readonly type: 'pref'; readonly key: keyof Prefs; readonly on: boolean }
   | { readonly type: 'unreachable'; readonly hashes: ReadonlyArray<string> }
   | { readonly type: 'pins'; readonly pins: D.Pins }
@@ -77,6 +81,8 @@ export function reduce(s: AppState, a: Action): AppState {
       return { ...s, screen: a.to };
     case 'me':
       return { ...s, me: a.me };
+    case 'onboarded':
+      return { ...s, onboarded: true, screen: 'settings' };
     case 'pref':
       return { ...s, prefs: { ...s.prefs, [a.key]: a.on } };
     case 'unreachable':

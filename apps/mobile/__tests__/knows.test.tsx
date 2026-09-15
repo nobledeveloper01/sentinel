@@ -4,7 +4,7 @@ import { verifyExport } from '@sentinel/crypto';
 
 import App from '../src/App';
 import { t } from '../src/phrases';
-import { evening, holdToCancel, tap } from '../test-support/support';
+import { begin, evening, holdToCancel, tap } from '../test-support/support';
 
 jest.mock('react-native-safe-area-context', () => ({
   SafeAreaProvider: ({ children }: { children: unknown }) => children,
@@ -15,6 +15,7 @@ describe('what Sentinel knows about you', () => {
   test('is derived from what the app holds, and changes as it does', async () => {
     const { services } = evening();
     render(<App services={services} />);
+    begin();
     await tap(t.settings);
     expect(screen.getByText(t.knowsNoNumber)).toBeTruthy();
     expect(screen.getByText(t.knowsCircle(0))).toBeTruthy();
@@ -32,6 +33,7 @@ describe('what Sentinel knows about you', () => {
     jest.useFakeTimers();
     const { services, shared } = evening();
     render(<App services={services} />);
+    begin();
     await tap(t.settings);
     expect((screen.getByRole('button', { name: t.shareRecord }).props as { accessibilityState: { disabled: boolean } }).accessibilityState.disabled).toBe(true);
     await tap(t.back);

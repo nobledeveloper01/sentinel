@@ -15,6 +15,7 @@ import { HomeScreen } from './screens/HomeScreen';
 import { JourneyScreen } from './screens/JourneyScreen';
 import { LockScreen } from './screens/LockScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
+import { WelcomeScreen } from './screens/WelcomeScreen';
 import { defaultServices, type Services } from './services';
 import { INITIAL, knows, reduce, sharedJourneys } from './state';
 
@@ -100,7 +101,9 @@ export function Root({ services, state: s, dispatch }: { services: Services; sta
 
   const running = s.alert !== null && !A.isOver(s.alert);
   let screen;
-  if (running && !s.hidden) {
+  if (!s.onboarded) {
+    screen = <WelcomeScreen state="Lagos" onBegin={() => dispatch({ type: 'onboarded' })} />;
+  } else if (running && !s.hidden) {
     screen = (
       <AlertScreen
         record={s.alert}

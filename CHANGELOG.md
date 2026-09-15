@@ -7,6 +7,10 @@ project is pre-release, so everything is under Unreleased until v1.0.
 
 ### Added
 
+- **The first launch is the rules.** Four sentences — the number first and
+  largest, *your circle and nobody else*, how to send silently and how to
+  end an alert, *never about a person* — and one action, which opens onto
+  the number, because the circle cannot be told without one. Nothing to skip.
 - **The screen runs on the server too.** The same rules in C#, held to the
   TypeScript by a fixture of 135 texts — the corpus and texts built from
   parts — with the verdict and the reasons each was given; broken on purpose

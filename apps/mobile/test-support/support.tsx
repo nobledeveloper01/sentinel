@@ -2,6 +2,7 @@ import { act, fireEvent, screen } from '@testing-library/react-native';
 
 import { generateKeyPair, signingKeyPair } from '@sentinel/crypto';
 
+import { t } from '../src/phrases';
 import type { Services } from '../src/services';
 import { memoryTransport } from '../src/transport';
 
@@ -45,4 +46,10 @@ export async function holdToCancel() {
 export function enterPin(digits: string) {
   for (const d of digits) fireEvent.press(screen.getByTestId(`key-${d}`));
   fireEvent.press(screen.getByTestId('key-✓'));
+}
+
+/** Through the welcome: read the rules, then back out of the settings it opens onto. */
+export function begin() {
+  fireEvent.press(screen.getByRole('button', { name: t.begin }));
+  fireEvent.press(screen.getByRole('button', { name: t.back }));
 }

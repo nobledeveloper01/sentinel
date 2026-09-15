@@ -409,7 +409,7 @@ packages/domain/test/           the reach property over 800 worlds; the halves
 packages/crypto/                the envelope and the phone hash; the server-cannot-open test
 apps/mobile/src/design/         tokens (DESIGN.md as code) and the theme
 apps/mobile/src/components/     the mesh, the glass, the two actions, the text
-apps/mobile/src/screens/        the home, the alert, the circle, the journey, settings, the lock
+apps/mobile/src/screens/        the welcome, the home, the alert, the circle, the journey, settings, the lock
 apps/mobile/src/components/HoldToCancel.tsx  two fingers, two seconds; PinPad.tsx — digits hashed before anything sees them
 apps/mobile/src/state.ts        the one function that changes what the app holds
 apps/mobile/src/relay.ts        the one place bytes leave the phone: seal, send, read back the attempts
@@ -439,7 +439,7 @@ it.
 
 **18 domain tests including the 800-world reach property, 8 crypto tests
 including the server-cannot-open proof and the export verified under Python,
-172 app tests including 146 contrast
+173 app tests including 146 contrast
 pairs, an evening against a server in memory and the cancel a coercer cannot
 perform, 9 server tests including the cannot-read proof, reach parity over
 200 worlds and screen parity over 135 texts.**
@@ -457,7 +457,7 @@ perform, 9 server tests including the cannot-read proof, reach parity over
 | **1** Crypto and the circle | **current** — the envelope, the relay that seals an alert to every accepted member, the circle screen and *who can see me*; the keys are generated per launch until the Keychain module holds them, which needs a handset |
 | **2** The panic path | The record, the honest delivery state and the server channel are built; the position, every trigger path and the other channels need a handset (R1, R2, R4) |
 | **3** Safe arrival | The plan, the states, the geofence, the server's timer and the screen that shows the plan before it starts are built and tested; the phone-off gate (R3) needs a phone |
-| **4** Trust surfaces → v1.0 | Duress, the two-finger cancel, the decoy, silent mode, the privacy card derived from state and the signed export are built; organisations, onboarding and the audit on hardware are to build |
+| **4** Trust surfaces → v1.0 | Duress, the two-finger cancel, the decoy, silent mode, the privacy card, the signed export and the onboarding that teaches the rules are built; organisations and the audit on hardware are to build |
 | **5** The reach engine | **Built and property-tested**, ahead of order, because the riskiest surface should have the most tested rule behind it |
 | **6** Content screening | The rules run on the phone and on the server, held to each other by a fixture of 135 texts; the model beyond the rules and the face check need a corpus and a camera |
 | **7** The community layer → v1.1 | Not started, by design: the last thing built, behind three gates and a month in one city |
