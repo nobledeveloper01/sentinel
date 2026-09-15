@@ -166,3 +166,11 @@ never hurts a block — and noted here in case it ever decides an appeal.
 The welcome screen last: four rules, the number, one button, and every test
 that renders the app now reads the rules first, which is a small honest cost
 of a screen nobody can skip.
+
+**The copy gate read a link as a comment.** `sentinel://a/${alertId}` has
+`//` in it; the gate stripped from there to the end of the line, the
+template literal lost its closing backtick, every quote below paired with
+the wrong partner, and the gate reported an exclamation mark in a "string"
+that was forty lines of code. The strip wants whitespace or a line start
+before the slashes now. Sixty-two strings checked before; eighty-eight
+after — the gate had been reading less of the file than it said.

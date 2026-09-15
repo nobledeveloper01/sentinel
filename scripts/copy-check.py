@@ -32,7 +32,10 @@ def main() -> int:
         if not f.exists():
             continue
         text = re.sub(r"/\*.*?\*/", "", f.read_text(), flags=re.S)
-        text = re.sub(r"//.*", "", text)
+        # A line comment starts after whitespace or at the line's start; the
+        # `//` in `sentinel://a/` is a link, and stripping from it unbalances
+        # every quote below.
+        text = re.sub(r"(^|\s)//.*", "", text)
         for lit in re.findall(r"'((?:[^'\\]|\\.)*)'|\"((?:[^\"\\]|\\.)*)\"|`((?:[^`\\]|\\.)*)`", text):
             s = lit[0] or lit[1] or lit[2]
             if len(s) < 3 or " " not in s and "!" not in s:
