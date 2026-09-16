@@ -17,6 +17,7 @@ import { LockScreen } from './screens/LockScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { defaultServices, type Services } from './services';
+import { launchKeys, loadOrMakeKeys, type DeviceKeys } from './keystore';
 import { INITIAL, knows, reduce, sharedJourneys } from './state';
 
 /**
@@ -49,11 +50,22 @@ function useMinute(now: () => number): number {
 export function Root({ services, state: s, dispatch }: { services: Services; state: ReturnType<typeof reduce>; dispatch: (a: Parameters<typeof reduce>[1]) => void }) {
   const { isDark } = useTheme();
   const now = useMinute(services.now);
+  // The device keys: from the store when there is one, otherwise for this launch.
+  const [device, setDevice] = useState<DeviceKeys>(launchKeys);
+  useEffect(() => {
+    let stale = false;
+    void loadOrMakeKeys(services.secrets).then((k) => {
+      if (!stale) setDevice(k);
+    });
+    return () => {
+      stale = true;
+    };
+  }, [services.secrets]);
   // A hidden alert is behind the PIN: the settings button asks for it first.
   const [locked, setLocked] = useState(false);
   const [wrongPin, setWrongPin] = useState(false);
   const circleNames = s.circle.members.map((m) => ({ hash: m.with, name: s.names[m.with] ?? m.with }));
-  const me = { ...s.me, keys: services.keys };
+  const me = { ...s.me, keys: device.keys };
 
   // The journey's plan, run on the phone as long as the phone is alive; the
   // server runs the same plan (J.serverPlan) for when it is not.
@@ -203,16 +215,16 @@ export function Root({ services, state: s, dispatch }: { services: Services; sta
         onSave={(phone, name) => {
           const next = { id: s.me.id || phoneHash(phone).slice(0, 16), phoneHash: phoneHash(phone), name };
           dispatch({ type: 'me', me: next });
-          void register(services.transport, { ...next, keys: services.keys }, now);
+          void register(services.transport, { ...next, keys: device.keys }, now);
           dispatch({ type: 'go', to: 'home' });
         }}
         onPref={(key, on) => dispatch({ type: 'pref', key, on })}
         onPins={(pins) => dispatch({ type: 'pins', pins })}
-        knows={knows(s)}
+        knows={knows(s, device.held)}
         hasRecord={s.past.length > 0}
         onShareRecord={() => {
           const last = s.past[s.past.length - 1];
-          if (last) void services.share(exportRecord(last, services.signing));
+          if (last) void services.share(exportRecord(last, device.signing));
         }}
         onBack={() => dispatch({ type: 'go', to: 'home' })}
       />

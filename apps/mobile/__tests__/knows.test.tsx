@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 
 import { verifyExport } from '@sentinel/crypto';
 
@@ -21,6 +21,9 @@ describe('what Sentinel knows about you', () => {
     expect(screen.getByText(t.knowsCircle(0))).toBeTruthy();
     expect(screen.getByText(t.knowsAlerts(0))).toBeTruthy();
     expect(screen.getByText(t.knowsNothingElse)).toBeTruthy();
+    // The keys came from the store, and the card says so — once the store has answered.
+    await waitFor(() => expect(screen.getByText(t.knowsKeys)).toBeTruthy());
+    expect(screen.queryByText(t.knowsKeysLaunch)).toBeNull();
     fireEvent.changeText(screen.getByTestId('myPhone'), '0801 111 2222');
     fireEvent.changeText(screen.getByTestId('myName'), 'Ada');
     await tap(t.save);
@@ -49,4 +52,12 @@ describe('what Sentinel knows about you', () => {
     expect(shared[0]).not.toContain('6.5');
     jest.useRealTimers();
   });
+});
+
+test('a phone with no secure store gets launch keys, and the card says so', async () => {
+  const { services } = evening();
+  render(<App services={{ ...services, secrets: null }} />);
+  begin();
+  await tap(t.settings);
+  expect(screen.getByText(t.knowsKeysLaunch)).toBeTruthy();
 });

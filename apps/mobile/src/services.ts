@@ -1,4 +1,5 @@
-import { generateKeyPair, signingKeyPair, type KeyPair } from '@sentinel/crypto';
+import type { SecretStore } from './keystore';
+import NativeSecrets from './native/NativeSentinelSecrets';
 
 import { Share } from 'react-native';
 
@@ -7,16 +8,16 @@ import type { Position } from './relay';
 
 /**
  * What the app needs from outside itself, handed in at the root so a test
- * can hand in a server in memory and a position it chose. The keys are
- * generated per launch here until the Keychain module holds them across
- * launches — which is a hardware gate, and the roadmap says so.
+ * can hand in a server in memory, a position it chose and a store in memory.
+ * The keys come from the platform's secure store through `keystore.ts`; a
+ * platform without one gets keys for this launch, and the privacy card says
+ * so.
  */
 export interface Services {
   readonly transport: Transport;
   readonly position: () => Promise<Position | null>;
-  readonly keys: KeyPair;
-  /** Ed25519, for the record's export. */
-  readonly signing: KeyPair;
+  /** The platform's secure store for the device keys, or null where there is none. */
+  readonly secrets: SecretStore | null;
   readonly now: () => number;
   readonly share: (text: string) => Promise<void>;
 }
@@ -28,8 +29,7 @@ export function defaultServices(): Services {
     transport: fetchTransport(SERVER_URL),
     // No fix until the platform's location comes with Phase 2's device work; the envelope says so honestly.
     position: () => Promise.resolve(null),
-    keys: generateKeyPair(),
-    signing: signingKeyPair(),
+    secrets: NativeSecrets,
     now: () => Math.floor(Date.now() / 60_000),
     share: async (text) => {
       await Share.share({ message: text });

@@ -156,7 +156,7 @@ function describeKnown(line: string): string {
     case 'alerts':
       return t.knowsAlerts(Number(value));
     case 'keys':
-      return t.knowsKeys;
+      return value === 'store' ? t.knowsKeys : t.knowsKeysLaunch;
     default:
       return '';
   }

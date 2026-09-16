@@ -7,6 +7,15 @@ project is pre-release, so everything is under Unreleased until v1.0.
 
 ### Added
 
+- **The device keys survive a launch.** `SentinelSecrets`: the Keychain on iOS
+  at *after first unlock, this device only* — a phone that reboots in a
+  pocket during an alert still seals the next position; a key never travels
+  in a backup to a phone somebody else holds — and EncryptedSharedPreferences
+  under a Keystore master key on Android. A platform without the module, or
+  a store that refuses, gets keys for this launch, and the privacy card says
+  which of the two it is. *Abuse model:* a key in a plain file is a key on a
+  jailbroken phone; a key that quietly fell back to a file would look exactly
+  like this being done.
 - **Who has acknowledged**, asked of the server every tick while an alert
   runs, each new one an event on the record — so *not yet* on the screen
   becomes *acknowledged* when her phone says so, and never before.

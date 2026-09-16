@@ -144,13 +144,13 @@ export function sharedJourneys(s: AppState): ReadonlyArray<{ with: ReadonlyArray
 }
 
 /** What the app holds about the person, derived from the state itself so the screen cannot drift from the truth. */
-export function knows(s: AppState): ReadonlyArray<string> {
+export function knows(s: AppState, keysHeld: 'store' | 'launch' = 'launch'): ReadonlyArray<string> {
   return [
     s.me.phoneHash ? `number:${s.me.phoneHash.slice(0, 8)}` : 'number:none',
     s.me.name ? `name:${s.me.name}` : 'name:none',
     `circle:${s.circle.members.length}`,
     `alerts:${s.past.length + (s.alert ? 1 : 0)}`,
-    'keys:2',
+    `keys:${keysHeld}`,
     'location:none',
   ];
 }

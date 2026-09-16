@@ -413,6 +413,8 @@ apps/mobile/src/screens/        the welcome, the home, the alert, the circle, th
 apps/mobile/src/components/HoldToCancel.tsx  two fingers, two seconds; PinPad.tsx — digits hashed before anything sees them
 apps/mobile/src/state.ts        the one function that changes what the app holds
 apps/mobile/src/relay.ts        the one place bytes leave the phone: seal, send, read back the attempts
+apps/mobile/src/keystore.ts     the device keys from the platform's store, or for this launch, and which
+apps/mobile/src/native/         the SentinelSecrets spec; the Swift and Kotlin halves are under ios/ and android/
 apps/mobile/src/transport.ts    the wire; and a server in memory a test can search
 apps/mobile/src/phrases.ts      every word the app says
 apps/mobile/__tests__/          the contrast pairs; the home to the alert and back;
@@ -439,7 +441,7 @@ it.
 
 **18 domain tests including the 800-world reach property, 8 crypto tests
 including the server-cannot-open proof and the export verified under Python,
-173 app tests including 146 contrast
+177 app tests including 146 contrast
 pairs, an evening against a server in memory and the cancel a coercer cannot
 perform, 9 server tests including the cannot-read proof, reach parity over
 200 worlds and screen parity over 135 texts.**
@@ -454,7 +456,7 @@ perform, 9 server tests including the cannot-read proof, reach parity over
 | Phase | State |
 | --- | --- |
 | **0** Foundation | Built and green in CI; the Critical Alerts application (R5) is a form to Apple |
-| **1** Crypto and the circle | **current** — the envelope, the relay that seals an alert to every accepted member, the circle screen and *who can see me*; the keys are generated per launch until the Keychain module holds them, which needs a handset |
+| **1** Crypto and the circle | **current** — the envelope, the relay that seals an alert to every accepted member, the circle screen and *who can see me*; the device keys in the Keychain on iOS and EncryptedSharedPreferences on Android, both compiled in CI, neither yet watched survive a reboot on a handset |
 | **2** The panic path | The record, the honest delivery state and the server channel are built; the position, every trigger path and the other channels need a handset (R1, R2, R4) |
 | **3** Safe arrival | The plan, the states, the geofence, the server's timer and the screen that shows the plan before it starts are built and tested; the phone-off gate (R3) needs a phone |
 | **4** Trust surfaces → v1.0 | Duress, the two-finger cancel, the decoy, silent mode, the privacy card, the signed export and the onboarding that teaches the rules are built; organisations and the audit on hardware are to build |

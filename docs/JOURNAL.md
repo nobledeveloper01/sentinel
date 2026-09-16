@@ -184,3 +184,15 @@ the testing library flushes `act` through; the runner's Node scheduled it
 differently and never came back. `fakeClock()` leaves those three real and
 fakes only what the hold and the minute need. The lesson Noosphere wrote
 down applies here too: local green means little; say which Node.
+
+## 2026-09-16, morning — the keys in the store
+
+The Keychain module from Keys, renamed and with the two things this product
+needs said in its comment: *after first unlock* because an alert may span a
+reboot in a pocket, *this device only* because a backup is somebody else's
+phone. Android gets what Keys never had — EncryptedSharedPreferences under a
+Keystore master key — and CI compiles both. `keystore.ts` loads or makes,
+treats a corrupt value as none, and reports where the keys live; the privacy
+card reads that rather than assuming, so a phone with no store says *for
+this launch only* instead of lying. What no test here can say is whether the
+keys are still there after a real reboot; that stays on the handset day.

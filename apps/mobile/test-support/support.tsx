@@ -1,8 +1,8 @@
 import { act, fireEvent, screen } from '@testing-library/react-native';
 
-import { generateKeyPair, signingKeyPair } from '@sentinel/crypto';
 
 import { t } from '../src/phrases';
+import { memoryStore } from '../src/keystore';
 import type { Services } from '../src/services';
 import { memoryTransport } from '../src/transport';
 
@@ -14,8 +14,7 @@ export function evening(position: { lat: number; lon: number } | null = null) {
   const services: Services = {
     transport: server,
     position: () => Promise.resolve(position),
-    keys: generateKeyPair(),
-    signing: signingKeyPair(),
+    secrets: memoryStore(),
     now: () => minute,
     share: (text) => {
       shared.push(text);
