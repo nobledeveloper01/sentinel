@@ -12,9 +12,9 @@ jest.mock('react-native-safe-area-context', () => ({
 }));
 
 describe('the home', () => {
-  test('the official number comes first and the panic action is the one gradient control', () => {
+  test('the official number comes first and the panic action is the one gradient control', async () => {
     render(<App />);
-    begin();
+    await begin();
     expect(screen.getByText('767')).toBeTruthy();
     expect(screen.getByText(t.notASubstitute)).toBeTruthy();
     expect(screen.getByRole('button', { name: t.panic })).toBeTruthy();
@@ -23,7 +23,7 @@ describe('the home', () => {
   test('the panic action opens the alert with the number still first, and the cancel ends it', async () => {
     fakeClock();
     render(<App />);
-    begin();
+    await begin();
     fireEvent.press(screen.getByRole('button', { name: t.panic }));
     expect(screen.getByTestId('delivery')).toBeTruthy();
     expect(screen.getByText('767')).toBeTruthy();

@@ -9,6 +9,7 @@ import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import * as reach from '../packages/domain/src/public/reach.ts';
+import * as categories from '../packages/domain/src/public/categories.ts';
 import * as screen from '../packages/domain/src/public/screen.ts';
 
 class Gen {
@@ -129,3 +130,10 @@ const okCount = screened.filter((s) => s.ok).length;
 if (okCount === 0 || okCount === screened.length) throw new Error('the screen fixture has to hold both verdicts');
 writeFileSync(join(import.meta.dirname, '..', 'fixtures', 'screen.json'), JSON.stringify({ generated: 'scripts/emit-fixtures.ts', ok: okCount, blocked: screened.length - okCount, texts: screened }, null, 1) + '\n');
 console.log(`wrote ${screened.length} screened texts: ${okCount} ok, ${screened.length - okCount} blocked`);
+
+// The closed list and its expiry, for the C# to agree with.
+writeFileSync(
+  join(import.meta.dirname, '..', 'fixtures', 'categories.json'),
+  JSON.stringify({ generated: 'scripts/emit-fixtures.ts', expiryHours: categories.EXPIRY_HOURS, humanReviewAlways: [...categories.HUMAN_REVIEW_ALWAYS] }, null, 1) + '\n',
+);
+console.log(`wrote ${categories.CATEGORIES.length} categories`);

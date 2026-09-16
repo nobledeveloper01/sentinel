@@ -6,7 +6,7 @@ import { alert as A, circle as C, duress as D, journey as J } from '@sentinel/do
  * dispatch, the store persists (Phase 1), and nothing else touches state.
  */
 export interface Screen {
-  readonly name: 'home' | 'circle' | 'journey' | 'settings';
+  readonly name: 'home' | 'circle' | 'journey' | 'settings' | 'nearby' | 'report';
 }
 
 /** What the circle knows me by. The keys live here until the Keychain module holds them. */

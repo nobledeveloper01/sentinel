@@ -15,7 +15,7 @@ describe('what Sentinel knows about you', () => {
   test('is derived from what the app holds, and changes as it does', async () => {
     const { services } = evening();
     render(<App services={services} />);
-    begin();
+    await begin();
     await tap(t.settings);
     expect(screen.getByText(t.knowsNoNumber)).toBeTruthy();
     expect(screen.getByText(t.knowsCircle(0))).toBeTruthy();
@@ -36,7 +36,7 @@ describe('what Sentinel knows about you', () => {
     fakeClock();
     const { services, shared } = evening();
     render(<App services={services} />);
-    begin();
+    await begin();
     await tap(t.settings);
     expect((screen.getByRole('button', { name: t.shareRecord }).props as { accessibilityState: { disabled: boolean } }).accessibilityState.disabled).toBe(true);
     await tap(t.back);
@@ -57,7 +57,7 @@ describe('what Sentinel knows about you', () => {
 test('a phone with no secure store gets launch keys, and the card says so', async () => {
   const { services } = evening();
   render(<App services={{ ...services, secrets: null }} />);
-  begin();
+  await begin();
   await tap(t.settings);
   expect(screen.getByText(t.knowsKeysLaunch)).toBeTruthy();
 });

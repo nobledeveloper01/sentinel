@@ -1,0 +1,19 @@
+{
+ "generated": "scripts/emit-fixtures.ts",
+ "expiryHours": {
+  "robbery": 24,
+  "burglary": 24,
+  "road_blocked": 6,
+  "accident": 6,
+  "fire": 12,
+  "flooding": 48,
+  "gunfire_heard": 6,
+  "unrest_or_protest": 12,
+  "building_collapse": 48,
+  "power_line_down": 24,
+  "missing_person_appeal": 72
+ },
+ "humanReviewAlways": [
+  "missing_person_appeal"
+ ]
+}

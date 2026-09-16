@@ -95,6 +95,13 @@ corroborate and dispute with fixed reasons, stage badges, corrections that
 reach everyone who saw the claim, the blocked-report explainer, the
 organisation console.
 
+**Built 2026-09-16, the code, last as planned.** The feed within reach, the
+report screen with the closed list and the blocked-report explainer,
+corroborate and dispute with fixed reasons, the withdrawal that reaches
+everyone shown, and the server's `/reports` with the reach engine computing
+every stage from what it knows now. Not the organisation console, and not
+shipped: the exit gate is a city.
+
 **Exit gate**. *Launched to one city with a staffed review queue; thirty days
 with zero harm incidents before any expansion (R6). If the layer ever
 demonstrates it is less safe than the WhatsApp group it replaces, it is

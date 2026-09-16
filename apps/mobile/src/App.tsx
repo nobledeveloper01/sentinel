@@ -6,6 +6,7 @@ import { exportRecord, phoneHash } from '@sentinel/crypto';
 import { alert as A, circle as C, duress as D, journey as J } from '@sentinel/domain';
 
 import { JourneyCard } from './components/JourneyCard';
+import * as Community from './community';
 import { Mesh } from './components/Mesh';
 import { ThemeProvider, useTheme } from './design/theme';
 import { acceptedMembers, acknowledgements, register, relayAlert } from './relay';
@@ -14,10 +15,13 @@ import { CircleScreen } from './screens/CircleScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { JourneyScreen } from './screens/JourneyScreen';
 import { LockScreen } from './screens/LockScreen';
+import { NearbyScreen } from './screens/NearbyScreen';
+import { ReportScreen } from './screens/ReportScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { defaultServices, type Services } from './services';
 import { launchKeys, loadOrMakeKeys, type DeviceKeys } from './keystore';
+import { t } from './phrases';
 import { INITIAL, knows, reduce, sharedJourneys } from './state';
 
 /**
@@ -115,6 +119,31 @@ export function Root({ services, state: s, dispatch }: { services: Services; sta
     // Every tick of the minute, for as long as the alert runs.
   }, [alertId, now, services.transport, dispatch, acked]);
 
+  // The public path: what is near, asked whenever the feed is opened, with
+  // the corrections this account is owed; refusals as words on the screen.
+  const [feed, setFeed] = useState<{ reports: ReadonlyArray<Community.NearbyReport> | null; state: 'ok' | 'no position' | 'unreachable'; corrections: ReadonlyArray<string> }>({ reports: null, state: 'ok', corrections: [] });
+  const [refused, setRefused] = useState<Community.Refusal | null>(null);
+  const [mine, setMine] = useState<ReadonlyArray<string>>([]);
+  const [feedTick, setFeedTick] = useState(0);
+  const onFeed = s.screen === 'nearby';
+  useEffect(() => {
+    if (!onFeed) return;
+    let stale = false;
+    void (async () => {
+      const at = await services.position();
+      if (!at) {
+        if (!stale) setFeed({ reports: null, state: 'no position', corrections: [] });
+        return;
+      }
+      const [reports, corrections] = await Promise.all([Community.nearby(services.transport, s.me.id, at, services.now()), Community.corrections(services.transport, s.me.id)]);
+      if (!stale) setFeed({ reports, state: reports === null ? 'unreachable' : 'ok', corrections });
+    })();
+    return () => {
+      stale = true;
+    };
+  }, [onFeed, feedTick, services, s.me.id]);
+  const refresh = () => setFeedTick((n) => n + 1);
+
   // Who has accepted, asked of the server whenever the circle is opened:
   // acceptance happens on the other phone, so this is the only way to learn it.
   const onCircle = s.screen === 'circle';
@@ -206,6 +235,54 @@ export function Root({ services, state: s, dispatch }: { services: Services; sta
         onBack={() => dispatch({ type: 'go', to: 'home' })}
       />
     );
+  } else if (s.screen === 'nearby') {
+    screen = (
+      <NearbyScreen
+        reports={feed.reports}
+        corrections={feed.corrections}
+        mine={mine}
+        state={feed.state}
+        onReport={() => {
+          setRefused(null);
+          dispatch({ type: 'go', to: 'report' });
+        }}
+        onCorroborate={(id) => {
+          void services.position().then((at) => at && Community.corroborate(services.transport, id, s.me.id, at, services.now()).then(refresh));
+        }}
+        onDispute={(id, reason) => {
+          void Community.dispute(services.transport, id, s.me.id, reason, services.now()).then(refresh);
+        }}
+        onWithdraw={(id) => {
+          void Community.withdraw(services.transport, id, s.me.id).then(refresh);
+        }}
+        onBack={() => dispatch({ type: 'go', to: 'home' })}
+      />
+    );
+  } else if (s.screen === 'report') {
+    screen = (
+      <ReportScreen
+        refused={refused}
+        onSend={(category, text) => {
+          void (async () => {
+            const at = await services.position();
+            if (!at) {
+              setRefused({ reason: t.reportNoPosition, details: [] });
+              return;
+            }
+            const out = await Community.report(services.transport, s.me.id, category, at, text, services.now());
+            if ('id' in out) {
+              setMine([...mine, out.id]);
+              setRefused(null);
+              refresh();
+              dispatch({ type: 'go', to: 'nearby' });
+            } else {
+              setRefused(out);
+            }
+          })();
+        }}
+        onBack={() => dispatch({ type: 'go', to: 'nearby' })}
+      />
+    );
   } else if (s.screen === 'settings') {
     screen = (
       <SettingsScreen
@@ -239,6 +316,7 @@ export function Root({ services, state: s, dispatch }: { services: Services; sta
         onJourney={() => dispatch({ type: 'go', to: 'journey' })}
         onCircle={() => dispatch({ type: 'go', to: 'circle' })}
         onSettings={() => (running || s.pins ? setLocked(true) : dispatch({ type: 'go', to: 'settings' }))}
+        onNearby={() => dispatch({ type: 'go', to: 'nearby' })}
       />
     );
   }

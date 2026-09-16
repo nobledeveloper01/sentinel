@@ -14,9 +14,9 @@ jest.mock('react-native-safe-area-context', () => ({
 }));
 
 describe('the circle', () => {
-  test('is empty and says so; an invitation is listed as not yet accepted and shares nothing', () => {
+  test('is empty and says so; an invitation is listed as not yet accepted and shares nothing', async () => {
     render(<App />);
-    begin();
+    await begin();
     fireEvent.press(screen.getByRole('button', { name: t.circle }));
     expect(screen.getByText(t.circleEmpty)).toBeTruthy();
     expect(disabled(t.invite)).toBe(true);
@@ -31,9 +31,9 @@ describe('the circle', () => {
 });
 
 describe('the journey', () => {
-  test('shows the plan before it starts, refuses to start with nowhere to go, and sits on the home once under way', () => {
+  test('shows the plan before it starts, refuses to start with nowhere to go, and sits on the home once under way', async () => {
     render(<App />);
-    begin();
+    await begin();
     fireEvent.press(screen.getByRole('button', { name: t.journeyStart }));
     expect(screen.getByTestId('plan').props.children).toBe(t.planLine(45, 60));
     expect(disabled(t.journeyGo)).toBe(true);

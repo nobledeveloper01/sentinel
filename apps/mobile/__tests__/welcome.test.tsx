@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
 import App from '../src/App';
 import { t } from '../src/phrases';
@@ -9,9 +9,12 @@ jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
 }));
 
-test('the first launch is the rules, the number first, one action, nothing to skip — and it opens onto the number', () => {
+test('the first launch is the rules, the number first, one action, nothing to skip — and it opens onto the number', async () => {
   const { services } = evening();
   render(<App services={services} />);
+  await act(async () => {
+    await Promise.resolve();
+  });
   expect(screen.getByText(t.welcome)).toBeTruthy();
   expect(screen.getByText('767')).toBeTruthy();
   for (const r of [t.rule1, t.rule2, t.rule3, t.rule4]) expect(screen.getByText(r)).toBeTruthy();

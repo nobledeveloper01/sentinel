@@ -7,6 +7,20 @@ project is pre-release, so everything is under Unreleased until v1.0.
 
 ### Added
 
+- **The community layer, built last as planned and not shipped.** *Near you*:
+  every unexpired report whose reach covers where the phone is, as a category
+  at a distance with its stage in words — no count, no ranking, no map. *Report
+  something*: the closed list as tiles, the place is where the phone is, a
+  sentence about the event checked on every keystroke with the explainer
+  saying why and offering the event instead; the one category about a person
+  is not on the screen. *I saw this too*, *That is not right* with four fixed
+  reasons, *Take back my report* — and a withdrawal reaches everyone it was
+  shown to. On the server, reach is computed per report from what is known
+  now; the location trace is a history, so neighbours at one event are two
+  voices and accounts that always move together are one. *Abuse model:* the
+  500 m ceiling on one account's word is asserted on the running server; the
+  screen runs on the phone and again on the server; a modified client that
+  skips either gains nothing; there is nothing to count, rank or share.
 - **The device keys survive a launch.** `SentinelSecrets`: the Keychain on iOS
   at *after first unlock, this device only* — a phone that reboots in a
   pocket during an alert still seals the next position; a key never travels

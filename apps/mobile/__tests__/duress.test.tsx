@@ -24,7 +24,7 @@ describe('the cancel a coercer cannot perform by reaching over', () => {
   test('one finger, or two fingers lifted early, cancels nothing; two fingers for two seconds does', async () => {
     const { server, services } = evening();
     render(<App services={services} />);
-    begin();
+    await begin();
     await tap(t.panic);
     const pad = screen.getByTestId('holdToCancel');
     fireEvent(pad, 'touchStart', fingers(1));
@@ -47,7 +47,7 @@ describe('the cancel a coercer cannot perform by reaching over', () => {
   test('with PINs set, the hold leads to the pad: the real PIN cancels, the duress PIN cancels on the screen and says so to the server, a wrong PIN says so', async () => {
     const { server, services } = evening();
     render(<App services={services} />);
-    begin();
+    await begin();
     await setPins('2468', '1357');
     await tap(t.panic);
     fireEvent(screen.getByTestId('holdToCancel'), 'touchStart', fingers(2));
@@ -75,7 +75,7 @@ describe('the cancel a coercer cannot perform by reaching over', () => {
   test('two PINs that are the same are refused', async () => {
     const { services } = evening();
     render(<App services={services} />);
-    begin();
+    await begin();
     await tap(t.settings);
     fireEvent.changeText(screen.getByTestId('pin1'), '1111');
     fireEvent.changeText(screen.getByTestId('pin2'), '1111');
@@ -87,7 +87,7 @@ describe('silent mode and the decoy', () => {
   test('a held panic changes nothing on the screen; the alert still reaches the server; the real PIN reveals it', async () => {
     const { server, services } = evening();
     render(<App services={services} />);
-    begin();
+    await begin();
     await setPins('2468', '1357');
     await act(async () => {
       fireEvent(screen.getByRole('button', { name: t.panic }), 'longPress');
@@ -104,7 +104,7 @@ describe('silent mode and the decoy', () => {
   test('the duress PIN opens the idle home, the alert continues, and the server is told', async () => {
     const { server, services } = evening();
     render(<App services={services} />);
-    begin();
+    await begin();
     await setPins('2468', '1357');
     await act(async () => {
       fireEvent(screen.getByRole('button', { name: t.panic }), 'longPress');

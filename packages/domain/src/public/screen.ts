@@ -17,6 +17,27 @@ export type Reason =
   | 'a vehicle plate'
   | 'a phone number';
 
+/** A short key per reason, for a screen that must not carry the reason's own words (the copy gate reads the app, not the domain). */
+export type ReasonKey = 'name' | 'looks' | 'clothing' | 'group' | 'plate' | 'phone';
+export function reasonKey(r: string): ReasonKey | null {
+  switch (r) {
+    case 'a name':
+      return 'name';
+    case 'a description of a person':
+      return 'looks';
+    case 'clothing':
+      return 'clothing';
+    case 'an ethnic or religious identifier':
+      return 'group';
+    case 'a vehicle plate':
+      return 'plate';
+    case 'a phone number':
+      return 'phone';
+    default:
+      return null;
+  }
+}
+
 export interface Screened {
   readonly ok: boolean;
   readonly reasons: ReadonlyArray<Reason>;

@@ -10,6 +10,53 @@ public sealed class AccountRow
     public string PhoneHash { get; set; } = "";
     public string PublicKey { get; set; } = "";
     public long CreatedMinutes { get; set; }
+    /// <summary>The independence signals reach counts on (FR-4.3). The trace is a coarse cell of where the account last reported from.</summary>
+    public string Device { get; set; } = "";
+    public string InstallLineage { get; set; } = "";
+    public string LocationTrace { get; set; } = "";
+    /// <summary>The coarse cells this account has reported or corroborated from, newest last, so the trace is a history and not a point.</summary>
+    public string TraceCells { get; set; } = "";
+    public bool Organisation { get; set; }
+}
+
+/// <summary>A report: an event at a place, from the closed list, with text only if the screen let it through.</summary>
+public sealed class ReportRow
+{
+    public string Id { get; set; } = "";
+    public string Reporter { get; set; } = "";
+    public string Category { get; set; } = "";
+    public long AtMinutes { get; set; }
+    public double X { get; set; }
+    public double Y { get; set; }
+    public string? Text { get; set; }
+    public bool Withdrawn { get; set; }
+}
+
+public sealed class CorroborationRow
+{
+    public long Id { get; set; }
+    public string Report { get; set; } = "";
+    public string By { get; set; } = "";
+    public long AtMinutes { get; set; }
+    public double X { get; set; }
+    public double Y { get; set; }
+}
+
+public sealed class DisputeRow
+{
+    public long Id { get; set; }
+    public string Report { get; set; } = "";
+    public string By { get; set; } = "";
+    public long AtMinutes { get; set; }
+    public string Reason { get; set; } = "";
+}
+
+/// <summary>Who a report was shown to, so a correction reaches exactly that audience (FR-4.4).</summary>
+public sealed class ShownRow
+{
+    public long Id { get; set; }
+    public string Report { get; set; } = "";
+    public string Account { get; set; } = "";
 }
 
 /// <summary>Mutual consent: invited, then accepted in a language; removed by either side.</summary>
@@ -86,6 +133,10 @@ public sealed class SentinelDbContext(DbContextOptions<SentinelDbContext> option
     public DbSet<EnvelopeRow> Envelopes => Set<EnvelopeRow>();
     public DbSet<AttemptRow> Attempts => Set<AttemptRow>();
     public DbSet<AcknowledgementRow> Acknowledgements => Set<AcknowledgementRow>();
+    public DbSet<ReportRow> Reports => Set<ReportRow>();
+    public DbSet<CorroborationRow> Corroborations => Set<CorroborationRow>();
+    public DbSet<DisputeRow> Disputes => Set<DisputeRow>();
+    public DbSet<ShownRow> Shown => Set<ShownRow>();
 }
 
 /// <summary>Where an SMS goes. The server keeps that one was sent and to whom, never what it said (ADR-0004).</summary>

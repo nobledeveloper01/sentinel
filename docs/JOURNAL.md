@@ -196,3 +196,30 @@ treats a corrupt value as none, and reports where the keys live; the privacy
 card reads that rather than assuming, so a phone with no store says *for
 this launch only* instead of lying. What no test here can say is whether the
 keys are still there after a real reboot; that stays on the handset day.
+
+## 2026-09-16 — the community layer, last
+
+Everything else was built, so the thing the plan said to build last was
+next: the feed, the report, corroborate, dispute, withdraw, and the server
+computing reach per report. Six tests on the running server, and the first
+run of the second one failed for a reason worth the journal.
+
+**The location trace was a point, and it made every witness the reporter.**
+The independence rule collapses two accounts with the same trace. The first
+implementation set the trace to the cell an account last reported from — so
+two strangers who corroborated one fire from the same street became one
+voice, and nothing could ever pass 500 m. The trace is a *history* now: the
+sorted set of cells over the last twenty events, and a fingerprint only after
+five; until then it is unique to the account. The test that proves it also
+found the semantics: reach is computed from what is known *now*, so once two
+accounts are known to move together, every report they ever touched drops
+back to 500 m — the earlier ones included. That is right, and it was not what
+the first assertion said.
+
+**The copy gate read the domain's reason strings in the app.** `'a
+description of a person'` in a `switch` tripped the rule written for exactly
+those words. The domain hands the app a key now — `looks`, `group`, `plate`
+— and the words live in phrases where the gate can read them as copy. An
+`unknown:{id}` device and lineage for an account that sent none, because an
+empty string equal to another empty string would have made every phone one
+phone.

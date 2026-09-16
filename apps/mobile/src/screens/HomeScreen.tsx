@@ -23,6 +23,7 @@ export function HomeScreen({
   onJourney,
   onCircle,
   onSettings,
+  onNearby,
 }: {
   state: string | null;
   /** A journey under way, above the fold, or nothing. */
@@ -32,6 +33,7 @@ export function HomeScreen({
   onJourney: () => void;
   onCircle: () => void;
   onSettings: () => void;
+  onNearby: () => void;
 }) {
   const insets = useSafeAreaInsets();
   const official = numbers.numbersFor(state);
@@ -74,6 +76,8 @@ export function HomeScreen({
         <SecondaryAction label={t.journeyStart} onPress={onJourney} />
         <Gap h={space.s} />
         <SecondaryAction label={t.circle} onPress={onCircle} />
+        <Gap h={space.s} />
+        <SecondaryAction label={t.nearby} onPress={onNearby} />
         <Gap h={space.s} />
         <SecondaryAction label={t.settings} onPress={onSettings} />
       </ScrollView>

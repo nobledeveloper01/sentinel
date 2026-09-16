@@ -126,7 +126,12 @@ cancels an escalation silently. It works for one person with zero other users,
 carries no abuse risk, and builds the habit of a configured circle before the
 night it is needed. Nobody installs an emergency app during an emergency.
 
-### The public path, in a later release
+### The public path, built and held back
+
+The code is built — the feed, the report, corroborate and dispute, the
+withdrawal that reaches everyone shown — and it ships in v1.1 behind three
+gates and a month in one city, not before. What follows is what the code
+does.
 
 **The closed list.** `robbery`, `burglary`, `road_blocked`, `accident`,
 `fire`, `flooding`, `gunfire_heard`, `unrest_or_protest`, `building_collapse`,
@@ -164,6 +169,20 @@ succeeds: the screen fails closed.
 **Corrections.** Every account that saw a report is remembered against it, so
 a downgrade or retraction reaches exactly that audience and can never reach
 fewer people than the claim did.
+
+**On the server.** `/reports` refuses a category off the list, a fourth
+report in a day, a second in half an hour, and free text the screen blocks —
+with the reasons — and it holds `missing_person_appeal` to organisations.
+`/reports/nearby` computes every unexpired report's stage from what the
+server knows *now* and returns only those whose reach covers the caller,
+remembering each one shown. The location trace is a history, not a point:
+two strangers corroborating one event from one place are neighbours, and
+only five shared cells make two accounts one. Six tests on the running
+server: one account's report stops at 500 m; two accounts on one device
+cannot widen it and two independent ones can; a name is refused with the
+reason and the category still stands; a withdrawal names everyone shown; a
+new account's report reaches nobody; accounts that always move together
+become one.
 
 ### The design
 
@@ -409,7 +428,10 @@ packages/domain/test/           the reach property over 800 worlds; the halves
 packages/crypto/                the envelope and the phone hash; the server-cannot-open test
 apps/mobile/src/design/         tokens (DESIGN.md as code) and the theme
 apps/mobile/src/components/     the mesh, the glass, the two actions, the text
-apps/mobile/src/screens/        the welcome, the home, the alert, the circle, the journey, settings, the lock
+apps/mobile/src/screens/        the welcome, the home, the alert, the circle, the journey, settings, the lock,
+                                the feed within reach, the report with its explainer
+apps/mobile/src/community.ts    the public path's client: the screen on the phone, then the server's
+apps/mobile/src/geo.ts          degrees to the metres the reach engine is written in
 apps/mobile/src/components/HoldToCancel.tsx  two fingers, two seconds; PinPad.tsx — digits hashed before anything sees them
 apps/mobile/src/state.ts        the one function that changes what the app holds
 apps/mobile/src/relay.ts        the one place bytes leave the phone: seal, send, read back the attempts
@@ -420,11 +442,12 @@ apps/mobile/src/phrases.ts      every word the app says
 apps/mobile/__tests__/          the contrast pairs; the home to the alert and back;
                                 the circle and the journey; an evening through the reducer
 server/src/Sentinel.Domain/     reach, the escalation plan and the screen, in C#
-server/src/Sentinel.Infrastructure/  the store and the SMS gateway interface
+server/src/Sentinel.Infrastructure/  the store, the SMS gateway interface, and Community — reach computed per report
 server/src/Sentinel.Api/        the endpoints; Messages.cs is read by the copy gate
 server/tests/                   parity over the fixture; the server cannot read
 fixtures/reach.json             what the TypeScript said about 200 worlds, for the C# to agree with
 fixtures/screen.json            what it said about 135 texts, for the same reason
+fixtures/categories.json        the closed list and its hours
 scripts/                        the gates: boundary, doc, copy, design, mark, counts, fixtures;
                                 verify-record.py — the export checked with nothing but Python
 docs/adr/                       the eight decisions, and the six things refused
@@ -441,10 +464,10 @@ it.
 
 **18 domain tests including the 800-world reach property, 8 crypto tests
 including the server-cannot-open proof and the export verified under Python,
-177 app tests including 146 contrast
+181 app tests including 146 contrast
 pairs, an evening against a server in memory and the cancel a coercer cannot
-perform, 9 server tests including the cannot-read proof, reach parity over
-200 worlds and screen parity over 135 texts.**
+perform, 16 server tests including the cannot-read proof, reach and screen and
+category parity, and the 500 m ceiling on the running server.**
 
 | | |
 |---|---|
@@ -462,7 +485,7 @@ perform, 9 server tests including the cannot-read proof, reach parity over
 | **4** Trust surfaces → v1.0 | Duress, the two-finger cancel, the decoy, silent mode, the privacy card, the signed export and the onboarding that teaches the rules are built; organisations and the audit on hardware are to build |
 | **5** The reach engine | **Built and property-tested**, ahead of order, because the riskiest surface should have the most tested rule behind it |
 | **6** Content screening | The rules run on the phone and on the server, held to each other by a fixture of 135 texts; the model beyond the rules and the face check need a corpus and a camera |
-| **7** The community layer → v1.1 | Not started, by design: the last thing built, behind three gates and a month in one city |
+| **7** The community layer → v1.1 | The code is built last, as planned — the feed within reach, the report with the explainer, corroborate, dispute, withdraw with its audience — and held behind three gates and a month in one city (R6, R7) |
 | **8** Advisory → v1.2 | The five-language SMS is built; advisory and patrol logging are not |
 
 ### What is open, and why it matters

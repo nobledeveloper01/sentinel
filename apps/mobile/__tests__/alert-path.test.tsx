@@ -24,7 +24,7 @@ describe('the alert path', () => {
   test('a panic with nobody in the circle sends no envelope, and the screen puts the number first with the honest line', async () => {
     const { server, services } = evening();
     render(<App services={services} />);
-    begin();
+    await begin();
     await tap(t.panic);
     expect(screen.getByText('767')).toBeTruthy();
     expect(screen.getByText(t.alertNobody)).toBeTruthy();
@@ -35,7 +35,7 @@ describe('the alert path', () => {
   test('registering sends a hash and a public key and never the name or the number', async () => {
     const { server, services } = evening();
     render(<App services={services} />);
-    begin();
+    await begin();
     await saveMe('Ada Okafor');
     await waitFor(() => expect(server.keys.size).toBe(1));
     expect(server.everythingHeld()).not.toContain('Ada');
@@ -49,7 +49,7 @@ describe('the alert path', () => {
     const bola = { id: 'bola', phoneHash: phoneHash('0803 000 0001'), name: 'Bola', keys: generateKeyPair() };
     await register(server, bola, 1);
     render(<App services={services} />);
-    begin();
+    await begin();
     await saveMe();
     const myId = [...server.keys.keys()].length === 2 ? phoneHash('0801 111 2222').slice(0, 16) : '';
     expect(myId).not.toBe('');
@@ -91,10 +91,10 @@ describe('the alert path', () => {
     jest.useRealTimers();
   });
 
-  test('the settings switches turn glass off and motion off at act time', () => {
+  test('the settings switches turn glass off and motion off at act time', async () => {
     const { services } = evening();
     render(<App services={services} />);
-    begin();
+    await begin();
     fireEvent.press(screen.getByRole('button', { name: t.settings }));
     fireEvent(screen.getByTestId('pref-glass'), 'valueChange', true);
     fireEvent(screen.getByTestId('pref-reduced'), 'valueChange', true);

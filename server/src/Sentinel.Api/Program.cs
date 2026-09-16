@@ -14,6 +14,7 @@ builder.Services.AddDbContext<SentinelDbContext>(o =>
 });
 builder.Services.AddSingleton<ISmsGateway, CountingSmsGateway>();
 builder.Services.AddScoped<Store>();
+builder.Services.AddScoped<Community>();
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();
 
@@ -26,7 +27,7 @@ app.MapGet("/health", () => Results.Ok(new { ok = true, note = Messages.Healthy 
 // Accounts: a phone-number hash and a device public key. Never a name.
 app.MapPost("/accounts", async (RegisterAccount req, SentinelDbContext db, CancellationToken ct) =>
 {
-    var row = new AccountRow { Id = req.Id, PhoneHash = req.PhoneHash, PublicKey = req.PublicKey, CreatedMinutes = req.NowMinutes };
+    var row = new AccountRow { Id = req.Id, PhoneHash = req.PhoneHash, PublicKey = req.PublicKey, CreatedMinutes = req.NowMinutes, Device = req.Device ?? $"unknown:{req.Id}", InstallLineage = req.InstallLineage ?? $"unknown:{req.Id}", LocationTrace = $"unknown:{req.Id}" };
     db.Accounts.Add(row);
     await db.SaveChangesAsync(ct);
     return Results.Ok(new { id = row.Id });
@@ -121,6 +122,33 @@ app.MapPost("/alerts/{id}/ack", async (string id, Acknowledge req, SentinelDbCon
     await db.SaveChangesAsync(ct);
     return Results.Ok();
 });
+// The community layer (ADR-0002, ADR-0003): events at places, reaching only
+// as far as the reach engine says, with every refusal a reason a screen can print.
+app.MapPost("/reports", async (NewReport req, Community community, CancellationToken ct) =>
+{
+    var (row, refused) = await community.ReportAsync(req.Account, req.Category, req.X, req.Y, req.Text, req.NowMinutes, ct);
+    return refused is not null ? Results.UnprocessableEntity(new { refused.Reason, refused.Details }) : Results.Ok(new { row!.Id });
+});
+app.MapPost("/reports/{id}/corroborate", async (string id, Corroborate req, Community community, CancellationToken ct) =>
+{
+    var refused = await community.CorroborateAsync(id, req.Account, req.X, req.Y, req.NowMinutes, ct);
+    return refused is not null ? Results.UnprocessableEntity(new { refused.Reason, refused.Details }) : Results.Ok();
+});
+app.MapPost("/reports/{id}/dispute", async (string id, DisputeReport req, Community community, CancellationToken ct) =>
+{
+    var refused = await community.DisputeAsync(id, req.Account, req.Reason, req.NowMinutes, ct);
+    return refused is not null ? Results.UnprocessableEntity(new { refused.Reason, refused.Details }) : Results.Ok();
+});
+app.MapPost("/reports/{id}/withdraw", async (string id, Withdraw req, Community community, CancellationToken ct) =>
+{
+    var (audience, refused) = await community.WithdrawAsync(id, req.Account, ct);
+    return refused is not null ? Results.UnprocessableEntity(new { refused.Reason, refused.Details }) : Results.Ok(new { told = audience.Count });
+});
+app.MapGet("/reports/nearby", async (string account, double x, double y, long nowMinutes, Community community, CancellationToken ct) =>
+    Results.Ok(await community.NearbyAsync(account, x, y, nowMinutes, ct)));
+app.MapGet("/reports/corrections", async (string account, Community community, CancellationToken ct) =>
+    Results.Ok(await community.CorrectionsAsync(account, ct)));
+
 app.MapPost("/alerts/{id}/duress", async (string id, SentinelDbContext db, CancellationToken ct) =>
 {
     var a = await db.Alerts.FindAsync([id], ct);
@@ -141,7 +169,11 @@ app.MapPost("/alerts/{id}/cancel", async (string id, Cancel req, SentinelDbConte
 
 app.Run();
 
-public sealed record RegisterAccount(string Id, string PhoneHash, string PublicKey, long NowMinutes);
+public sealed record RegisterAccount(string Id, string PhoneHash, string PublicKey, long NowMinutes, string? Device = null, string? InstallLineage = null);
+public sealed record NewReport(string Account, string Category, double X, double Y, string? Text, long NowMinutes);
+public sealed record Corroborate(string Account, double X, double Y, long NowMinutes);
+public sealed record DisputeReport(string Account, string Reason, long NowMinutes);
+public sealed record Withdraw(string Account);
 public sealed record Invite(string Owner, string WithPhoneHash);
 public sealed record Accept(string Owner, string WithPhoneHash, string Language);
 public sealed record RegisterJourney(string Id, string Account, long ExpectedMinutes, int GraceMinutes, List<string> Notify);

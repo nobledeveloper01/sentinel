@@ -17,5 +17,6 @@
   <ItemGroup>
     <None Include="..\..\..\fixtures\reach.json" Link="fixtures\reach.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\..\..\fixtures\screen.json" Link="fixtures\screen.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\..\fixtures\categories.json" Link="fixtures\categories.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

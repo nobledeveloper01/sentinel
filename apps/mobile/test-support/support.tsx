@@ -56,8 +56,11 @@ export function enterPin(digits: string) {
   fireEvent.press(screen.getByTestId('key-✓'));
 }
 
-/** Through the welcome: read the rules, then back out of the settings it opens onto. */
-export function begin() {
+/** Through the welcome: let the keys load, read the rules, then back out of the settings it opens onto. */
+export async function begin() {
+  await act(async () => {
+    await Promise.resolve();
+  });
   fireEvent.press(screen.getByRole('button', { name: t.begin }));
   fireEvent.press(screen.getByRole('button', { name: t.back }));
 }
