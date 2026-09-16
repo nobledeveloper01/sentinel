@@ -17,6 +17,8 @@ public sealed class AccountRow
     /// <summary>The coarse cells this account has reported or corroborated from, newest last, so the trace is a history and not a point.</summary>
     public string TraceCells { get; set; } = "";
     public bool Organisation { get; set; }
+    /// <summary>An organisation's name — an estate, a company, a station — never a person's. Set by an administrator with the token.</summary>
+    public string? OrganisationName { get; set; }
 }
 
 /// <summary>A report: an event at a place, from the closed list, with text only if the screen let it through.</summary>
@@ -30,6 +32,9 @@ public sealed class ReportRow
     public double Y { get; set; }
     public string? Text { get; set; }
     public bool Withdrawn { get; set; }
+    /// <summary>For the one category that involves a person: null until a named reviewer decided, then their name; never distributed before.</summary>
+    public string? ReviewedBy { get; set; }
+    public bool? Approved { get; set; }
 }
 
 public sealed class CorroborationRow

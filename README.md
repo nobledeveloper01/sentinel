@@ -173,7 +173,9 @@ fewer people than the claim did.
 **On the server.** `/reports` refuses a category off the list, a fourth
 report in a day, a second in half an hour, and free text the screen blocks —
 with the reasons — and it holds `missing_person_appeal` to organisations.
-`/reports/nearby` computes every unexpired report's stage from what the
+`/organisations` and `/review` take an administrator's token: a named
+reviewer decides the one category about a person, and it is not distributed
+before. `/reports/nearby` computes every unexpired report's stage from what the
 server knows *now* and returns only those whose reach covers the caller,
 remembering each one shown. The location trace is a history, not a point:
 two strangers corroborating one event from one place are neighbours, and
@@ -466,8 +468,9 @@ it.
 including the server-cannot-open proof and the export verified under Python,
 181 app tests including 146 contrast
 pairs, an evening against a server in memory and the cancel a coercer cannot
-perform, 16 server tests including the cannot-read proof, reach and screen and
-category parity, and the 500 m ceiling on the running server.**
+perform, 17 server tests including the cannot-read proof, reach and screen and
+category parity, the 500 m ceiling on the running server, and the appeal
+held until a named reviewer approves it.**
 
 | | |
 |---|---|
@@ -485,7 +488,7 @@ category parity, and the 500 m ceiling on the running server.**
 | **4** Trust surfaces → v1.0 | Duress, the two-finger cancel, the decoy, silent mode, the privacy card, the signed export and the onboarding that teaches the rules are built; organisations and the audit on hardware are to build |
 | **5** The reach engine | **Built and property-tested**, ahead of order, because the riskiest surface should have the most tested rule behind it |
 | **6** Content screening | The rules run on the phone and on the server, held to each other by a fixture of 135 texts; the model beyond the rules and the face check need a corpus and a camera |
-| **7** The community layer → v1.1 | The code is built last, as planned — the feed within reach, the report with the explainer, corroborate, dispute, withdraw with its audience — and held behind three gates and a month in one city (R6, R7) |
+| **7** The community layer → v1.1 | The code is built last, as planned — the feed within reach, the report with the explainer, corroborate, dispute, withdraw with its audience, the organisation console and the review queue — and held behind three gates and a month in one city (R6, R7) |
 | **8** Advisory → v1.2 | The five-language SMS is built; advisory and patrol logging are not |
 
 ### What is open, and why it matters

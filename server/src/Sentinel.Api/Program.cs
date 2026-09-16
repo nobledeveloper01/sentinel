@@ -122,6 +122,28 @@ app.MapPost("/alerts/{id}/ack", async (string id, Acknowledge req, SentinelDbCon
     await db.SaveChangesAsync(ct);
     return Results.Ok();
 });
+// The organisation console: an administrator with the token vouches for an
+// organisation and a named reviewer decides the one category about a person.
+var adminToken = builder.Configuration["SENTINEL_ADMIN_TOKEN"];
+bool Admin(HttpRequest r) => !string.IsNullOrEmpty(adminToken) && r.Headers["X-Admin-Token"] == adminToken;
+app.MapPost("/organisations", async (HttpRequest http, VerifyOrganisation req, Community community, CancellationToken ct) =>
+{
+    if (!Admin(http)) return Results.Unauthorized();
+    return await community.VerifyOrganisationAsync(req.Account, req.Name, ct) ? Results.Ok() : Results.NotFound();
+});
+app.MapGet("/review", async (HttpRequest http, Community community, CancellationToken ct) =>
+{
+    if (!Admin(http)) return Results.Unauthorized();
+    var q = await community.QueueAsync(ct);
+    return Results.Ok(q.Select(r => new { r.Id, r.Category, r.AtMinutes, r.Text }));
+});
+app.MapPost("/reports/{id}/review", async (HttpRequest http, string id, Review req, Community community, CancellationToken ct) =>
+{
+    if (!Admin(http)) return Results.Unauthorized();
+    var refused = await community.ReviewAsync(id, req.Reviewer, req.Approve, ct);
+    return refused is not null ? Results.UnprocessableEntity(new { refused.Reason, refused.Details }) : Results.Ok();
+});
+
 // The community layer (ADR-0002, ADR-0003): events at places, reaching only
 // as far as the reach engine says, with every refusal a reason a screen can print.
 app.MapPost("/reports", async (NewReport req, Community community, CancellationToken ct) =>
@@ -174,6 +196,8 @@ public sealed record NewReport(string Account, string Category, double X, double
 public sealed record Corroborate(string Account, double X, double Y, long NowMinutes);
 public sealed record DisputeReport(string Account, string Reason, long NowMinutes);
 public sealed record Withdraw(string Account);
+public sealed record VerifyOrganisation(string Account, string Name);
+public sealed record Review(string Reviewer, bool Approve);
 public sealed record Invite(string Owner, string WithPhoneHash);
 public sealed record Accept(string Owner, string WithPhoneHash, string Language);
 public sealed record RegisterJourney(string Id, string Account, long ExpectedMinutes, int GraceMinutes, List<string> Notify);

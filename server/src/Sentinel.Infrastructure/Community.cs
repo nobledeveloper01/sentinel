@@ -119,6 +119,34 @@ public sealed class Community(SentinelDbContext db)
         return Reach.StageOf(evidence);
     }
 
+    /// <summary>An administrator with the token vouches for an organisation: an accountable administrator behind an account.</summary>
+    public async Task<bool> VerifyOrganisationAsync(string account, string name, CancellationToken ct)
+    {
+        var a = await db.Accounts.FindAsync([account], ct);
+        if (a is null) return false;
+        a.Organisation = true;
+        a.OrganisationName = name;
+        await db.SaveChangesAsync(ct);
+        return true;
+    }
+
+    /// <summary>The review queue: reports in a human-review category that nobody has decided yet.</summary>
+    public Task<List<ReportRow>> QueueAsync(CancellationToken ct) =>
+        db.Reports.Where(r => !r.Withdrawn && r.ReviewedBy == null && Categories.HumanReviewAlways.Contains(r.Category)).OrderBy(r => r.AtMinutes).ToListAsync(ct);
+
+    /// <summary>A named reviewer decides; a decision without a name is refused.</summary>
+    public async Task<Refusal?> ReviewAsync(string reportId, string reviewer, bool approve, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(reviewer)) return new Refusal("a reviewer has a name", []);
+        var r = await db.Reports.FindAsync([reportId], ct);
+        if (r is null) return new Refusal("no such report", []);
+        if (r.ReviewedBy is not null) return new Refusal("already decided", []);
+        r.ReviewedBy = reviewer;
+        r.Approved = approve;
+        await db.SaveChangesAsync(ct);
+        return null;
+    }
+
     /// <summary>What an account at a position may see: every unexpired report whose reach covers it. Each one shown is remembered.</summary>
     public async Task<IReadOnlyList<Nearby>> NearbyAsync(string account, double x, double y, long nowMinutes, CancellationToken ct)
     {
@@ -127,6 +155,8 @@ public sealed class Community(SentinelDbContext db)
         foreach (var r in candidates)
         {
             if (Categories.Expired(r.Category, r.AtMinutes, nowMinutes)) continue;
+            // The one category about a person distributes only after a named person approved it.
+            if (Categories.HumanReviewAlways.Contains(r.Category) && r.Approved != true) continue;
             var stage = await StageAsync(r, nowMinutes, ct);
             if (stage == Stage.None) continue;
             var d = Distance(x, y, r.X, r.Y);

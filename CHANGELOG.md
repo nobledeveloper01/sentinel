@@ -7,6 +7,13 @@ project is pre-release, so everything is under Unreleased until v1.0.
 
 ### Added
 
+- **The organisation console.** An administrator with `SENTINEL_ADMIN_TOKEN`
+  vouches for an organisation — an estate, a company, a station, never a
+  person — and a *named* reviewer decides the one category about a person,
+  which is not distributed before. A decision without a name is refused; the
+  console without the token refuses everybody. *Abuse model:* the appeal is
+  the only surface that can name a person; it is behind an accountable
+  administrator and a reviewer's name, and a modified client cannot post it.
 - **The community layer, built last as planned and not shipped.** *Near you*:
   every unexpired report whose reach covers where the phone is, as a category
   at a distance with its stage in words — no count, no ranking, no map. *Report

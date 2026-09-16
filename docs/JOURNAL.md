@@ -223,3 +223,9 @@ those words. The domain hands the app a key now — `looks`, `group`, `plate`
 `unknown:{id}` device and lineage for an account that sent none, because an
 empty string equal to another empty string would have made every phone one
 phone.
+
+**An organisation's own word is `confirmed`.** The console test expected an
+approved appeal to reach as `reported`; the reach rules say one verified
+organisation makes `confirmed`, and 5 km. The test was wrong and the engine
+right, which is the direction to be wrong in — the rule has 800 worlds
+behind it and the test had me.
