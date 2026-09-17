@@ -104,3 +104,25 @@ export async function acknowledgements(transport: Transport, alertId: string): P
   const acks = (r.body as { acknowledgements?: ReadonlyArray<{ byPhoneHash: string; atMinutes: number }> }).acknowledgements ?? [];
   return acks.map((a) => ({ by: a.byPhoneHash, at: a.atMinutes }));
 }
+
+/** The organisations somebody vouched for (ADR-0009): names of places and the hash a phone seals to. Null when the server cannot be reached. */
+export async function organisations(transport: Transport): Promise<ReadonlyArray<{ phoneHash: string; name: string }> | null> {
+  const r = await transport.get('/organisations');
+  if (!r.ok || !Array.isArray(r.body)) return null;
+  return (r.body as Array<{ phoneHash: string; name: string }>).map((o) => ({ phoneHash: o.phoneHash, name: o.name }));
+}
+
+/**
+ * One position of a watch (ADR-0011), sealed to the one watcher and posted
+ * under the journey. No position is an envelope too, so her screen says
+ * *no fix* rather than showing nothing and guessing why.
+ */
+export async function watchPosition(transport: Transport, me: Me, journeyId: string, watcher: string, position: Position | null, atMinutes: number): Promise<boolean> {
+  const reply = await transport.get(`/keys/${watcher}`);
+  const pk = reply.ok ? (reply.body as { publicKey?: string }).publicKey : undefined;
+  if (!pk) return false;
+  const plaintext = position ? encodePosition(position.lat, position.lon, atMinutes) : encodeNoPosition(atMinutes);
+  const env = seal(plaintext, me.keys, fromBase64(pk));
+  const sent = await transport.post(`/journeys/${journeyId}/positions`, { to: watcher, atMinutes, from: toBase64(env.from), nonce: toBase64(env.nonce), ciphertext: toBase64(env.ciphertext) });
+  return sent.ok;
+}

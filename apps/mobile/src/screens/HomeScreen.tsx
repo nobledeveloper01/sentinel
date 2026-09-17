@@ -21,6 +21,7 @@ export function HomeScreen({
   onPanic,
   onPanicSilent,
   onJourney,
+  onWatch,
   onCircle,
   onSettings,
   onNearby,
@@ -31,6 +32,7 @@ export function HomeScreen({
   onPanic: () => void;
   onPanicSilent: () => void;
   onJourney: () => void;
+  onWatch: () => void;
   onCircle: () => void;
   onSettings: () => void;
   onNearby: () => void;
@@ -74,6 +76,8 @@ export function HomeScreen({
           </>
         ) : null}
         <SecondaryAction label={t.journeyStart} onPress={onJourney} />
+        <Gap h={space.s} />
+        <SecondaryAction label={t.watchMe} onPress={onWatch} />
         <Gap h={space.s} />
         <SecondaryAction label={t.circle} onPress={onCircle} />
         <Gap h={space.s} />

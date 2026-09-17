@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { alert, duress as D, numbers } from '@sentinel/domain';
+import { alert, circle as C, duress as D, numbers, type places as P } from '@sentinel/domain';
 
 import { Gap } from '../components/Actions';
 import { Glass } from '../components/Glass';
@@ -20,6 +20,8 @@ import { t } from '../phrases';
 export function AlertScreen({
   record,
   circle,
+  ladder = { circle: [], organisations: [], officialNumbers: true },
+  safePlaces = [],
   unreachable = [],
   pins,
   state,
@@ -28,6 +30,10 @@ export function AlertScreen({
 }: {
   record: alert.AlertRecord;
   circle: ReadonlyArray<{ hash: string; name: string }>;
+  /** The three rungs (ADR-0009), drawn in order beneath the delivery state. */
+  ladder?: C.Ladder;
+  /** Where the user said they would go (ADR-0010), beneath the numbers; never a suggestion. */
+  safePlaces?: ReadonlyArray<P.SafePlace>;
   unreachable?: ReadonlyArray<string>;
   pins: D.Pins | null;
   state: string | null;
@@ -70,6 +76,30 @@ export function AlertScreen({
           );
         })}
       </Glass>
+      <Gap h={space.s} />
+      <Glass depth="low" testID="ladder">
+        <Text variant="small" tone="secondary">
+          {t.ladder}
+        </Text>
+        <Text variant="body">1 · {t.ladderCircle}</Text>
+        <Text variant="body" tone={ladder.organisations.length === 0 ? 'secondary' : 'primary'}>
+          2 · {ladder.organisations.length === 0 ? t.ladderNoOrganisation : `${t.ladderOrganisation}: ${ladder.organisations.map((h) => circle.find((m) => m.hash === h)?.name ?? h).join(', ')}`}
+        </Text>
+        <Text variant="body">3 · {t.ladderNumbers}</Text>
+      </Glass>
+      {safePlaces.length > 0 ? (
+        <>
+          <Gap h={space.s} />
+          <Text variant="small" tone="secondary">
+            {t.safePlaces}
+          </Text>
+          {safePlaces.map((sp) => (
+            <Text key={sp.label} variant="body">
+              {sp.label}
+            </Text>
+          ))}
+        </>
+      ) : null}
       <View style={styles.grow} />
       {held && pins ? (
         <PinPad

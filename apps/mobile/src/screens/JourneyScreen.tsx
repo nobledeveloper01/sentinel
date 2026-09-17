@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { circle as C, journey as J } from '@sentinel/domain';
+import { circle as C, journey as J, places as P } from '@sentinel/domain';
 
 import { Gap, PrimaryAction, SecondaryAction } from '../components/Actions';
 import { Glass } from '../components/Glass';
@@ -21,14 +21,20 @@ export function JourneyScreen({
   names,
   nowMinutes,
   batteryMinutesLeft,
+  places = P.NONE,
   onStart,
+  onKeep,
   onBack,
 }: {
   circle: C.Circle;
   names: Readonly<Record<string, string>>;
   nowMinutes: number;
   batteryMinutesLeft: number | null;
+  /** Templates as one tap and safe places as destinations (ADR-0010). */
+  places?: P.Places;
   onStart: (j: J.Journey) => void;
+  /** Keep this journey as a template, on the phone only. */
+  onKeep?: (template: P.Template) => void;
   onBack: () => void;
 }) {
   const insets = useSafeAreaInsets();
@@ -48,6 +54,11 @@ export function JourneyScreen({
   };
   const plan = J.plan(draft);
   const ready = where.trim().length > 0 && Number(minutes) > 0 && notify.length > 0;
+  const memberHashes = C.members(circle).map((m) => m.with);
+  const fromTemplate = (tpl: P.Template): J.Journey => {
+    const u = P.usable(tpl, memberHashes);
+    return { ...draft, id: String(nowMinutes), expectedMinutes: nowMinutes + u.minutes, notify: u.notify, destination: { x: 0, y: 0, label: u.label } };
+  };
   const battery = batteryMinutesLeft !== null && !J.batteryOutlasts(batteryMinutesLeft, draft, nowMinutes);
   return (
     <View style={[styles.fill, { paddingTop: insets.top + space.l, paddingBottom: insets.bottom + space.l }]}>
@@ -58,6 +69,26 @@ export function JourneyScreen({
           {t.journeyHint}
         </Text>
         <Gap />
+        {places.templates.length > 0 ? (
+          <>
+            <Text variant="title">{t.templates}</Text>
+            {places.templates.map((tpl) => {
+              const u = P.usable(tpl, memberHashes);
+              return (
+                <View key={tpl.label} style={styles.row}>
+                  <View style={styles.grow}>
+                    <Text variant="body">{tpl.label}</Text>
+                    <Text variant="small" tone="secondary">
+                      {t.templateLine(tpl.minutes, u.notify.length)}
+                    </Text>
+                  </View>
+                  <SecondaryAction label={t.startThisOne} disabled={u.notify.length === 0} onPress={() => onStart(fromTemplate(tpl))} />
+                </View>
+              );
+            })}
+            <Gap />
+          </>
+        ) : null}
         <TextInput
           testID="where"
           value={where}
@@ -67,6 +98,19 @@ export function JourneyScreen({
           accessibilityLabel={t.where}
           style={[styles.input, typeScale.body, { color: c.textPrimary, borderColor: c.hairline, backgroundColor: c.glassMid }]}
         />
+        {P.destinations(places).length > 0 ? (
+          <>
+            <Gap h={space.xs} />
+            <Text variant="small" tone="secondary">
+              {t.destinations}
+            </Text>
+            <View style={styles.wrap}>
+              {P.destinations(places).map((d) => (
+                <SecondaryAction key={d} label={d} onPress={() => setWhere(d)} />
+              ))}
+            </View>
+          </>
+        ) : null}
         <Gap h={space.s} />
         <TextInput
           testID="minutes"
@@ -119,6 +163,12 @@ export function JourneyScreen({
         </Glass>
         <Gap />
         <PrimaryAction label={t.journeyGo} disabled={!ready} onPress={() => onStart(draft)} />
+        {onKeep ? (
+          <>
+            <Gap h={space.s} />
+            <SecondaryAction label={t.keepAsTemplate} disabled={!ready} onPress={() => onKeep({ label: where.trim(), minutes: Number(minutes), notify })} />
+          </>
+        ) : null}
         <Gap h={space.s} />
         <SecondaryAction label={t.back} onPress={onBack} />
       </ScrollView>
@@ -131,5 +181,6 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: space.l },
   row: { flexDirection: 'row', alignItems: 'center', minHeight: target.standard, gap: space.s },
   grow: { flex: 1 },
+  wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs },
   input: { borderWidth: 1, borderRadius: radius.input, paddingHorizontal: space.m, minHeight: target.standard },
 });

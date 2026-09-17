@@ -71,7 +71,23 @@ export interface HeldReport {
   readonly shown: Set<string>;
 }
 
+export interface HeldJourney {
+  readonly id: string;
+  readonly account: string;
+  readonly expectedMinutes: number;
+  readonly graceMinutes: number;
+  readonly notify: ReadonlyArray<string>;
+  readonly watch: boolean;
+  readonly positions: Array<{ to: string; atMinutes: number; from: string; nonce: string; ciphertext: string }>;
+}
+
 export interface MemoryServer extends Transport {
+  /** Journeys and watches, with the sealed positions a watch relays. */
+  readonly journeys: Map<string, HeldJourney>;
+  /** The organisations somebody vouched for, as the server would list them. */
+  readonly organisations: Array<{ phoneHash: string; name: string }>;
+  /** What `/advisory` answers, or null for silence. */
+  advisory: { fromHour: number; toHour: number } | null;
   /** Reports, with a reach of 500 m and the stage the memory server gives: one voice, or *corroborated* at two. */
   readonly reports: Map<string, HeldReport>;
   getSync(path: string): Reply;
@@ -99,6 +115,8 @@ export function memoryTransport(): MemoryServer {
   const cancels = new Map<string, boolean>();
   const reports = new Map<string, HeldReport>();
   const openedUnderDuress = new Set<string>();
+  const journeys = new Map<string, HeldJourney>();
+  const organisations: Array<{ phoneHash: string; name: string }> = [];
   let refusing = false;
   let sms = true;
   const held: string[] = [];
@@ -110,6 +128,9 @@ export function memoryTransport(): MemoryServer {
     cancels,
     openedUnderDuress,
     reports,
+    journeys,
+    organisations,
+    advisory: null,
     ack(alertId, byPhoneHash, atMinutes) {
       const a = alerts.get(alertId);
       if (a) alerts.set(alertId, { ...a, acknowledgements: [...a.acknowledgements, { byPhoneHash, atMinutes }] });
@@ -121,7 +142,7 @@ export function memoryTransport(): MemoryServer {
         row.language = language;
       }
     },
-    everythingHeld: () => held.join('\n') + '\n' + JSON.stringify([...keys], null, 0) + JSON.stringify([...alerts], null, 0) + JSON.stringify(circles),
+    everythingHeld: () => held.join('\n') + '\n' + JSON.stringify([...keys], null, 0) + JSON.stringify([...alerts], null, 0) + JSON.stringify(circles) + JSON.stringify([...journeys]),
     refuse: (on) => {
       refusing = on;
     },
@@ -162,6 +183,13 @@ export function memoryTransport(): MemoryServer {
       if (corrections) return reply(200, [...reports.values()].filter((r) => r.withdrawn && r.shown.has(decodeURIComponent(corrections[1]!))).map((r) => r.id));
       const circle = /^\/circle\/(.+)$/.exec(path);
       if (circle) return reply(200, circles.filter((c) => c.owner === circle[1]).map((c) => ({ withPhoneHash: c.withPhoneHash, accepted: c.accepted, language: c.language })));
+      if (path === '/organisations') return reply(200, organisations);
+      if (path.startsWith('/advisory?')) return this.advisory === null ? reply(204) : reply(200, this.advisory);
+      const positions = /^\/journeys\/([^/]+)\/positions\?to=(.+)$/.exec(path);
+      if (positions) {
+        const j = journeys.get(positions[1]!);
+        return reply(200, (j?.positions ?? []).filter((p) => p.to === decodeURIComponent(positions[2]!)).map(({ atMinutes, from, nonce, ciphertext }) => ({ atMinutes, from, nonce, ciphertext })));
+      }
       return reply(404);
     },
     post(path, body) {
@@ -197,6 +225,20 @@ export function memoryTransport(): MemoryServer {
         else if (b.account === r.account) r.withdrawn = true;
         else return reply(422, { reason: 'not yours', details: [] });
         return reply(200, act[2] === 'withdraw' ? { told: r.shown.size } : null);
+      }
+      if (path === '/journeys') {
+        const b = body as { id: string; account: string; expectedMinutes: number; graceMinutes: number; notify: string[]; watch?: boolean };
+        journeys.set(b.id, { id: b.id, account: b.account, expectedMinutes: b.expectedMinutes, graceMinutes: b.graceMinutes, notify: b.notify, watch: b.watch === true, positions: [] });
+        return reply(200, { id: b.id, escalateAtMinutes: b.expectedMinutes + b.graceMinutes });
+      }
+      const position = /^\/journeys\/([^/]+)\/positions$/.exec(path);
+      if (position) {
+        const j = journeys.get(position[1]!);
+        if (!j || !j.watch) return reply(404);
+        const b = body as { to: string; atMinutes: number; from: string; nonce: string; ciphertext: string };
+        if (!j.notify.includes(b.to)) return reply(422, { reason: 'not the watcher' });
+        j.positions.push(b);
+        return reply(200);
       }
       if (path === '/circle/invite') {
         const b = body as { owner: string; withPhoneHash: string };

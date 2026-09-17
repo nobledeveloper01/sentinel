@@ -5,19 +5,27 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { exportRecord, phoneHash } from '@sentinel/crypto';
 import { alert as A, circle as C, duress as D, journey as J } from '@sentinel/domain';
 
+import { Gap, SecondaryAction } from './components/Actions';
+import { Glass } from './components/Glass';
 import { JourneyCard } from './components/JourneyCard';
+import { Text } from './components/Text';
+import { space } from './design/tokens';
 import * as Community from './community';
 import { Mesh } from './components/Mesh';
 import { ThemeProvider, useTheme } from './design/theme';
-import { acceptedMembers, acknowledgements, register, relayAlert } from './relay';
+import { acceptedMembers, acknowledgements, organisations, register, relayAlert, watchPosition } from './relay';
 import { AlertScreen } from './screens/AlertScreen';
 import { CircleScreen } from './screens/CircleScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { JourneyScreen } from './screens/JourneyScreen';
 import { LockScreen } from './screens/LockScreen';
 import { NearbyScreen } from './screens/NearbyScreen';
+import { OrganisationsScreen } from './screens/OrganisationsScreen';
+import { PlacesScreen } from './screens/PlacesScreen';
+import { PolicyScreen } from './screens/PolicyScreen';
 import { ReportScreen } from './screens/ReportScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
+import { WatchScreen } from './screens/WatchScreen';
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { defaultServices, type Services } from './services';
 import { launchKeys, loadOrMakeKeys, type DeviceKeys } from './keystore';
@@ -72,12 +80,49 @@ export function Root({ services, state: s, dispatch }: { services: Services; sta
   const me = { ...s.me, keys: device.keys };
 
   // The journey's plan, run on the phone as long as the phone is alive; the
-  // server runs the same plan (J.serverPlan) for when it is not.
+  // server runs the same plan (J.serverPlan) for when it is not. A watch
+  // ends by itself at its minute and never escalates (ADR-0011).
   useEffect(() => {
-    if (s.journey && J.stateAt(s.journey.plan, now, s.journey.confirmed, false) === 'escalated') {
+    if (!s.journey) return;
+    if (J.watchOver(s.journey.plan, now)) dispatch({ type: 'watchOver' });
+    else if (!J.isWatch(s.journey.plan) && J.stateAt(s.journey.plan, now, s.journey.confirmed, false) === 'escalated') {
       dispatch({ type: 'journeyEscalated', now });
     }
   }, [s.journey, now, dispatch]);
+
+  // A watch's positions: one sealed envelope to the watcher per tick, as
+  // long as the watch runs — a fix, or the honest *no position*.
+  const watchId = s.journey && J.isWatch(s.journey.plan) ? s.journey.plan.id : null;
+  const watcher = s.journey?.plan.notify[0] ?? null;
+  const [watchHasFix, setWatchHasFix] = useState(true);
+  useEffect(() => {
+    if (!watchId || !watcher) return;
+    let stale = false;
+    void (async () => {
+      const position = await services.position();
+      if (stale) return;
+      setWatchHasFix(position !== null);
+      await watchPosition(services.transport, me, watchId, watcher, position, now);
+    })();
+    return () => {
+      stale = true;
+    };
+    // Every tick of the minute, for as long as the watch runs.
+  }, [watchId, watcher, now]);
+
+  // The organisations somebody vouched for, asked whenever that screen is opened.
+  const [orgs, setOrgs] = useState<ReadonlyArray<{ phoneHash: string; name: string }> | null>([]);
+  const onOrgs = s.screen === 'organisations';
+  useEffect(() => {
+    if (!onOrgs) return;
+    let stale = false;
+    void organisations(services.transport).then((list) => {
+      if (!stale) setOrgs(list);
+    });
+    return () => {
+      stale = true;
+    };
+  }, [onOrgs, services.transport]);
 
   // A new alert leaves the phone once: sealed to each member, and the
   // attempts the server reports become the record's own events.
@@ -121,7 +166,7 @@ export function Root({ services, state: s, dispatch }: { services: Services; sta
 
   // The public path: what is near, asked whenever the feed is opened, with
   // the corrections this account is owed; refusals as words on the screen.
-  const [feed, setFeed] = useState<{ reports: ReadonlyArray<Community.NearbyReport> | null; state: 'ok' | 'no position' | 'unreachable'; corrections: ReadonlyArray<string> }>({ reports: null, state: 'ok', corrections: [] });
+  const [feed, setFeed] = useState<{ reports: ReadonlyArray<Community.NearbyReport> | null; state: 'ok' | 'no position' | 'unreachable'; corrections: ReadonlyArray<string>; advisory: { fromHour: number; toHour: number } | null }>({ reports: null, state: 'ok', corrections: [], advisory: null });
   const [refused, setRefused] = useState<Community.Refusal | null>(null);
   const [mine, setMine] = useState<ReadonlyArray<string>>([]);
   const [feedTick, setFeedTick] = useState(0);
@@ -132,11 +177,15 @@ export function Root({ services, state: s, dispatch }: { services: Services; sta
     void (async () => {
       const at = await services.position();
       if (!at) {
-        if (!stale) setFeed({ reports: null, state: 'no position', corrections: [] });
+        if (!stale) setFeed({ reports: null, state: 'no position', corrections: [], advisory: null });
         return;
       }
-      const [reports, corrections] = await Promise.all([Community.nearby(services.transport, s.me.id, at, services.now()), Community.corrections(services.transport, s.me.id)]);
-      if (!stale) setFeed({ reports, state: reports === null ? 'unreachable' : 'ok', corrections });
+      const [reports, corrections, advisory] = await Promise.all([
+        Community.nearby(services.transport, s.me.id, at, services.now()),
+        Community.corrections(services.transport, s.me.id),
+        Community.advisory(services.transport, at, services.now()),
+      ]);
+      if (!stale) setFeed({ reports, state: reports === null ? 'unreachable' : 'ok', corrections, advisory });
     })();
     return () => {
       stale = true;
@@ -168,6 +217,8 @@ export function Root({ services, state: s, dispatch }: { services: Services; sta
       <AlertScreen
         record={s.alert}
         circle={circleNames}
+        ladder={C.ladder(s.circle)}
+        safePlaces={s.places.safe}
         unreachable={s.unreachable}
         pins={s.pins}
         state="Lagos"
@@ -228,13 +279,62 @@ export function Root({ services, state: s, dispatch }: { services: Services; sta
         names={s.names}
         nowMinutes={now}
         batteryMinutesLeft={null}
+        places={s.places}
         onStart={(j) => {
           void services.transport.post('/journeys', { id: j.id, account: s.me.id, expectedMinutes: j.expectedMinutes, graceMinutes: j.graceMinutes, notify: j.notify });
+          dispatch({ type: 'startJourney', journey: j });
+        }}
+        onKeep={(template) => dispatch({ type: 'saveTemplate', template })}
+        onBack={() => dispatch({ type: 'go', to: 'home' })}
+      />
+    );
+  } else if (s.screen === 'watch') {
+    screen = (
+      <WatchScreen
+        circle={s.circle}
+        names={s.names}
+        nowMinutes={now}
+        onStart={(j) => {
+          // The server's copy: the minute it ends and the one watcher; never the label.
+          void services.transport.post('/journeys', { id: j.id, account: s.me.id, expectedMinutes: j.expectedMinutes, graceMinutes: 0, notify: j.notify, watch: true });
           dispatch({ type: 'startJourney', journey: j });
         }}
         onBack={() => dispatch({ type: 'go', to: 'home' })}
       />
     );
+  } else if (s.screen === 'places') {
+    screen = (
+      <PlacesScreen
+        places={s.places}
+        names={s.names}
+        members={C.members(s.circle).map((m) => m.with)}
+        onStartTemplate={(tpl) => {
+          const j: J.Journey = { id: String(now), startedMinutes: now, expectedMinutes: now + tpl.minutes, notify: tpl.notify, liveShare: false, graceMinutes: J.DEFAULT_GRACE_MINUTES, destination: { x: 0, y: 0, label: tpl.label } };
+          void services.transport.post('/journeys', { id: j.id, account: s.me.id, expectedMinutes: j.expectedMinutes, graceMinutes: j.graceMinutes, notify: j.notify });
+          dispatch({ type: 'startJourney', journey: j });
+        }}
+        onForgetTemplate={(label) => dispatch({ type: 'forgetTemplate', label })}
+        onAddSafePlace={(label) => dispatch({ type: 'addSafePlace', label })}
+        onForgetSafePlace={(label) => dispatch({ type: 'forgetSafePlace', label })}
+        onBack={() => dispatch({ type: 'go', to: 'settings' })}
+      />
+    );
+  } else if (s.screen === 'organisations') {
+    screen = (
+      <OrganisationsScreen
+        organisations={orgs}
+        circle={s.circle}
+        onOptIn={(o) => {
+          // An invitation, like any member's: told nothing until it accepts from its console.
+          void services.transport.post('/circle/invite', { owner: s.me.id, withPhoneHash: o.phoneHash });
+          dispatch({ type: 'invite', hash: o.phoneHash, name: o.name, now, kind: 'organisation' });
+        }}
+        onOptOut={(hash) => dispatch({ type: 'remove', hash })}
+        onBack={() => dispatch({ type: 'go', to: 'settings' })}
+      />
+    );
+  } else if (s.screen === 'policy') {
+    screen = <PolicyScreen knows={knows(s, device.held)} onBack={() => dispatch({ type: 'go', to: 'settings' })} />;
   } else if (s.screen === 'nearby') {
     screen = (
       <NearbyScreen
@@ -242,6 +342,7 @@ export function Root({ services, state: s, dispatch }: { services: Services; sta
         corrections={feed.corrections}
         mine={mine}
         state={feed.state}
+        advisory={feed.advisory}
         onReport={() => {
           setRefused(null);
           dispatch({ type: 'go', to: 'report' });
@@ -303,6 +404,9 @@ export function Root({ services, state: s, dispatch }: { services: Services; sta
           const last = s.past[s.past.length - 1];
           if (last) void services.share(exportRecord(last, device.signing));
         }}
+        onPlaces={() => dispatch({ type: 'go', to: 'places' })}
+        onOrganisations={() => dispatch({ type: 'go', to: 'organisations' })}
+        onPolicy={() => dispatch({ type: 'go', to: 'policy' })}
         onBack={() => dispatch({ type: 'go', to: 'home' })}
       />
     );
@@ -310,10 +414,26 @@ export function Root({ services, state: s, dispatch }: { services: Services; sta
     screen = (
       <HomeScreen
         state="Lagos"
-        card={s.journey ? <JourneyCard journey={s.journey.plan} nowMinutes={now} onArrived={() => dispatch({ type: 'arrived' })} /> : null}
+        card={
+          s.journey ? (
+            <JourneyCard
+              journey={s.journey.plan}
+              nowMinutes={now}
+              watcherName={watcher ? (s.names[watcher] ?? watcher) : undefined}
+              hasFix={watchHasFix}
+              onArrived={() => {
+                if (s.journey && J.isWatch(s.journey.plan)) dispatch({ type: 'watchOver' });
+                else dispatch({ type: 'arrived' });
+              }}
+            />
+          ) : s.watchEnded !== null ? (
+            <WatchEndedCard where={s.watchEnded} onOk={() => dispatch({ type: 'watchSeen' })} />
+          ) : null
+        }
         onPanic={() => dispatch({ type: 'panic', now, path: 'screen', silent: false })}
         onPanicSilent={() => dispatch({ type: 'panic', now, path: 'screen-held', silent: true })}
         onJourney={() => dispatch({ type: 'go', to: 'journey' })}
+        onWatch={() => dispatch({ type: 'go', to: 'watch' })}
         onCircle={() => dispatch({ type: 'go', to: 'circle' })}
         onSettings={() => (running || s.pins ? setLocked(true) : dispatch({ type: 'go', to: 'settings' }))}
         onNearby={() => dispatch({ type: 'go', to: 'nearby' })}
@@ -325,5 +445,18 @@ export function Root({ services, state: s, dispatch }: { services: Services; sta
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       {screen}
     </Mesh>
+  );
+}
+
+/** The watch ended by itself (ADR-0011): said once, on the home, then gone. */
+function WatchEndedCard({ where, onOk }: { where: string; onOk: () => void }) {
+  return (
+    <Glass depth="mid" accessibilityLabel={t.watchEnded(where)}>
+      <Text variant="title" testID="watchEnded">
+        {t.watchEnded(where)}
+      </Text>
+      <Gap h={space.s} />
+      <SecondaryAction label={t.watchOk} onPress={onOk} />
+    </Glass>
   );
 }

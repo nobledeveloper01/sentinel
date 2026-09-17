@@ -75,3 +75,16 @@ export async function corrections(transport: Transport, account: string): Promis
   const r = await transport.get(`/reports/corrections?account=${encodeURIComponent(account)}`);
   return r.ok && Array.isArray(r.body) ? (r.body as string[]) : [];
 }
+
+/**
+ * The advisory for where the phone is (ADR-0012): a place and hours, or
+ * null — and null renders nothing. A server that cannot be reached is null
+ * too; there is no advisory to be wrong about.
+ */
+export async function advisory(transport: Transport, at: Position, nowMinutes: number): Promise<{ fromHour: number; toHour: number } | null> {
+  const { x, y } = toXY(at);
+  const r = await transport.get(`/advisory?x=${x}&y=${y}&nowMinutes=${nowMinutes}`);
+  if (!r.ok || r.status === 204 || r.body === null || typeof r.body !== 'object') return null;
+  const b = r.body as { fromHour?: number; toHour?: number };
+  return typeof b.fromHour === 'number' && typeof b.toHour === 'number' ? { fromHour: b.fromHour, toHour: b.toHour } : null;
+}

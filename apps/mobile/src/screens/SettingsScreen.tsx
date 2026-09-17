@@ -26,6 +26,9 @@ export function SettingsScreen({
   knows,
   hasRecord,
   onShareRecord,
+  onPlaces,
+  onOrganisations,
+  onPolicy,
   onBack,
 }: {
   phone: string;
@@ -38,6 +41,9 @@ export function SettingsScreen({
   knows: ReadonlyArray<string>;
   hasRecord: boolean;
   onShareRecord: () => void;
+  onPlaces: () => void;
+  onOrganisations: () => void;
+  onPolicy: () => void;
   onBack: () => void;
 }) {
   const [pin1, setPin1] = useState('');
@@ -110,6 +116,12 @@ export function SettingsScreen({
           }}
         />
         <Gap />
+        <SecondaryAction label={t.places} onPress={onPlaces} />
+        <Gap h={space.s} />
+        <SecondaryAction label={t.organisations} onPress={onOrganisations} />
+        <Gap h={space.s} />
+        <SecondaryAction label={t.policy} onPress={onPolicy} />
+        <Gap />
         <Glass depth="low" testID="knows">
           <Text variant="title">{t.knows}</Text>
           <Gap h={space.xs} />
@@ -157,6 +169,8 @@ function describeKnown(line: string): string {
       return t.knowsAlerts(Number(value));
     case 'keys':
       return value === 'store' ? t.knowsKeys : t.knowsKeysLaunch;
+    case 'places':
+      return t.knowsPlaces(Number(value));
     default:
       return '';
   }

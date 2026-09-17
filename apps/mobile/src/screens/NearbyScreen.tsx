@@ -20,6 +20,7 @@ export function NearbyScreen({
   corrections,
   mine,
   state,
+  advisory = null,
   onReport,
   onCorroborate,
   onDispute,
@@ -31,6 +32,8 @@ export function NearbyScreen({
   /** Ids of this phone's own reports, so the row offers *take back* and not *saw it too*. */
   mine: ReadonlyArray<string>;
   state: 'ok' | 'no position' | 'unreachable';
+  /** A place and hours (ADR-0012), or nothing — and nothing renders nothing. */
+  advisory?: { fromHour: number; toHour: number } | null;
   onReport: () => void;
   onCorroborate: (id: string) => void;
   onDispute: (id: string, reason: DisputeReason) => void;
@@ -120,6 +123,14 @@ export function NearbyScreen({
             </View>
           ))
         )}
+        {advisory ? (
+          <>
+            <Text variant="small" tone="secondary" testID="advisory">
+              {t.advisory(t.hour(advisory.fromHour), t.hour(advisory.toHour))}
+            </Text>
+            <Gap h={space.s} />
+          </>
+        ) : null}
         <Gap />
         <PrimaryAction label={t.reportSomething} onPress={onReport} disabled={state === 'no position'} />
         <Gap h={space.s} />
