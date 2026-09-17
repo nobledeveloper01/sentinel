@@ -5,9 +5,18 @@
  * screen that is always current.
  */
 
+/**
+ * A member is a person, or an organisation the user opted into (ADR-0009):
+ * an estate's guard house, a company's desk. An organisation is told what a
+ * person is told, and no more; the difference is only which rung of the
+ * ladder it stands on. Absent means a person, so nothing written before
+ * organisations existed changes meaning.
+ */
+export type Kind = 'person' | 'organisation';
+
 export type Relationship =
-  | { readonly with: string; readonly state: 'invited'; readonly since: number }
-  | { readonly with: string; readonly state: 'member'; readonly since: number; readonly language: Language };
+  | { readonly with: string; readonly state: 'invited'; readonly since: number; readonly kind?: Kind }
+  | { readonly with: string; readonly state: 'member'; readonly since: number; readonly language: Language; readonly kind?: Kind };
 
 export type Language = 'en' | 'pcm' | 'yo' | 'ha' | 'ig';
 
@@ -17,16 +26,16 @@ export interface Circle {
 
 export const EMPTY: Circle = { members: [] };
 
-export function invite(c: Circle, phoneHash: string, now: number): Circle {
+export function invite(c: Circle, phoneHash: string, now: number, kind: Kind = 'person'): Circle {
   if (c.members.some((m) => m.with === phoneHash)) return c;
-  return { members: [...c.members, { with: phoneHash, state: 'invited', since: now }] };
+  return { members: [...c.members, { with: phoneHash, state: 'invited', since: now, kind }] };
 }
 
 /** The invitee accepted, in their language. Nothing is shared before this. */
 export function accept(c: Circle, phoneHash: string, language: Language, now: number): Circle {
   return {
     members: c.members.map((m) =>
-      m.with === phoneHash && m.state === 'invited' ? { with: m.with, state: 'member', since: now, language } : m,
+      m.with === phoneHash && m.state === 'invited' ? { with: m.with, state: 'member', since: now, language, kind: m.kind ?? 'person' } : m,
     ),
   };
 }
@@ -38,6 +47,31 @@ export function remove(c: Circle, phoneHash: string): Circle {
 
 export function members(c: Circle): ReadonlyArray<Extract<Relationship, { state: 'member' }>> {
   return c.members.filter((m): m is Extract<Relationship, { state: 'member' }> => m.state === 'member');
+}
+
+export function kindOf(m: Relationship): Kind {
+  return m.kind ?? 'person';
+}
+
+/**
+ * The escalation ladder, drawn (ADR-0006 #15): the circle, then the
+ * organisations opted into, then the official numbers. Three rungs, in
+ * that order, and never a fourth. Each rung is the members on it; the
+ * last rung is always there, because the numbers do not need a circle.
+ */
+export interface Ladder {
+  readonly circle: ReadonlyArray<string>;
+  readonly organisations: ReadonlyArray<string>;
+  readonly officialNumbers: true;
+}
+
+export function ladder(c: Circle): Ladder {
+  const m = members(c);
+  return {
+    circle: m.filter((x) => kindOf(x) === 'person').map((x) => x.with),
+    organisations: m.filter((x) => kindOf(x) === 'organisation').map((x) => x.with),
+    officialNumbers: true,
+  };
 }
 
 export interface SharingNow {

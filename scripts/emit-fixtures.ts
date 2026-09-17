@@ -11,6 +11,7 @@ import { join } from 'node:path';
 import * as reach from '../packages/domain/src/public/reach.ts';
 import * as categories from '../packages/domain/src/public/categories.ts';
 import * as screen from '../packages/domain/src/public/screen.ts';
+import * as advisory from '../packages/domain/src/public/advisory.ts';
 
 class Gen {
   private s: number;
@@ -137,3 +138,28 @@ writeFileSync(
   JSON.stringify({ generated: 'scripts/emit-fixtures.ts', expiryHours: categories.EXPIRY_HOURS, humanReviewAlways: [...categories.HUMAN_REVIEW_ALWAYS] }, null, 1) + '\n',
 );
 console.log(`wrote ${categories.CATEGORIES.length} categories`);
+
+// Advisory (ADR-0012): generated cells of expired reports and the sentence
+// each gets — a place and hours, or nothing. Sparse worlds have to appear,
+// because the rule is mostly about saying nothing.
+const ag = new Gen(7);
+const advisories: unknown[] = [];
+let spoke = 0;
+for (let seed = 1; seed <= 120; seed++) {
+  const n = ag.next(14);
+  const accounts = 1 + ag.next(6);
+  const spread = ag.next(3); // 0 one band, 1 two bands, 2 all day
+  const base = ag.next(24);
+  const reports: advisory.ExpiredReport[] = [];
+  for (let i = 0; i < n; i++) {
+    const hour = spread === 0 ? (base + ag.next(3)) % 24 : spread === 1 ? (base + (ag.next(2) === 0 ? 0 : 12) + ag.next(2)) % 24 : ag.next(24);
+    const daysAgo = ag.next(100);
+    reports.push({ account: `a${ag.next(accounts)}`, x: 200 + ag.next(600), y: 200 + ag.next(600), atMinutes: NOW - daysAgo * 1440 + hour * 60 - (NOW % 1440) });
+  }
+  const result = advisory.advisoryAt(reports, 500, 500, NOW);
+  if (result) spoke++;
+  advisories.push({ seed, reports, nowMinutes: NOW, result });
+}
+if (spoke === 0 || spoke === advisories.length) throw new Error('the advisory fixture has to hold both silence and a sentence');
+writeFileSync(join(import.meta.dirname, '..', 'fixtures', 'advisory.json'), JSON.stringify({ generated: 'scripts/emit-fixtures.ts', spoke, silent: advisories.length - spoke, worlds: advisories }, null, 1) + '\n');
+console.log(`wrote ${advisories.length} advisory worlds: ${spoke} spoke, ${advisories.length - spoke} silent`);

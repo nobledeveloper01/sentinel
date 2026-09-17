@@ -120,14 +120,38 @@ public sealed class Community(SentinelDbContext db)
     }
 
     /// <summary>An administrator with the token vouches for an organisation: an accountable administrator behind an account.</summary>
-    public async Task<bool> VerifyOrganisationAsync(string account, string name, CancellationToken ct)
+    /// <summary>Vouched for by the administrator; the organisation's own console token is minted here and handed back once (ADR-0009).</summary>
+    public async Task<string?> VerifyOrganisationAsync(string account, string name, CancellationToken ct)
     {
         var a = await db.Accounts.FindAsync([account], ct);
-        if (a is null) return false;
+        if (a is null) return null;
         a.Organisation = true;
         a.OrganisationName = name;
+        a.OrganisationToken ??= Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(24)).ToLowerInvariant();
         await db.SaveChangesAsync(ct);
-        return true;
+        return a.OrganisationToken;
+    }
+
+    /// <summary>The verified organisations, by name and the hash a phone seals to. Never a person.</summary>
+    public Task<List<(string PhoneHash, string Name)>> OrganisationsAsync(CancellationToken ct) =>
+        db.Accounts.Where(a => a.Organisation && a.OrganisationName != null).OrderBy(a => a.OrganisationName)
+            .Select(a => new ValueTuple<string, string>(a.PhoneHash, a.OrganisationName!)).ToListAsync(ct);
+
+    public Task<AccountRow?> OrganisationByTokenAsync(string token, CancellationToken ct) =>
+        string.IsNullOrEmpty(token) ? Task.FromResult<AccountRow?>(null) : db.Accounts.FirstOrDefaultAsync(a => a.Organisation && a.OrganisationToken == token, ct);
+
+    /// <summary>
+    /// The advisory for a place (ADR-0012), from reports past their reach
+    /// window — the expired ones — pooled across categories.
+    /// </summary>
+    public async Task<Advisory.Result?> AdvisoryAsync(double x, double y, long nowMinutes, CancellationToken ct)
+    {
+        var (cx, cy) = Advisory.CellOf(x, y);
+        var rows = await db.Reports.Where(r => !r.Withdrawn).ToListAsync(ct);
+        var expired = rows
+            .Where(r => Categories.Expired(r.Category, r.AtMinutes, nowMinutes))
+            .Select(r => new Advisory.ExpiredReport(r.Reporter, r.X, r.Y, r.AtMinutes));
+        return Advisory.For(expired, cx, cy, nowMinutes);
     }
 
     /// <summary>The review queue: reports in a human-review category that nobody has decided yet.</summary>

@@ -10,9 +10,11 @@ export * as alert from './personal/alert.ts';
 export * as duress from './personal/duress.ts';
 export * as numbers from './personal/numbers.ts';
 export * as messages from './personal/messages.ts';
+export * as places from './personal/places.ts';
 export type { Language } from './personal/circle.ts';
 
 export * as reach from './public/reach.ts';
 export * as categories from './public/categories.ts';
 export * as screen from './public/screen.ts';
 export * as corrections from './public/corrections.ts';
+export * as advisory from './public/advisory.ts';

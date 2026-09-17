@@ -19,6 +19,30 @@ public sealed class AccountRow
     public bool Organisation { get; set; }
     /// <summary>An organisation's name — an estate, a company, a station — never a person's. Set by an administrator with the token.</summary>
     public string? OrganisationName { get; set; }
+    /// <summary>The organisation's own token for its console (ADR-0009), issued when it was vouched for. Null for a person.</summary>
+    public string? OrganisationToken { get; set; }
+}
+
+/// <summary>A patrol: a line an organisation writes about its own work (ADR-0012). A cell and a minute; no person, no report.</summary>
+public sealed class PatrolRow
+{
+    public long Id { get; set; }
+    public string Organisation { get; set; } = "";
+    public int CellX { get; set; }
+    public int CellY { get; set; }
+    public long AtMinutes { get; set; }
+}
+
+/// <summary>A watched journey's position (ADR-0011): an envelope sealed to the one watcher, which the server relays and cannot open.</summary>
+public sealed class JourneyPositionRow
+{
+    public long Id { get; set; }
+    public string Journey { get; set; } = "";
+    public string ToPhoneHash { get; set; } = "";
+    public long AtMinutes { get; set; }
+    public byte[] FromKey { get; set; } = [];
+    public byte[] Nonce { get; set; } = [];
+    public byte[] Ciphertext { get; set; } = [];
 }
 
 /// <summary>A report: an event at a place, from the closed list, with text only if the screen let it through.</summary>
@@ -85,6 +109,8 @@ public sealed class JourneyRow
     public bool Confirmed { get; set; }
     public bool Cancelled { get; set; }
     public long? EscalatedAtMinutes { get; set; }
+    /// <summary>A watch (ADR-0011): ends by itself at the expected minute and is never escalated by the sweep.</summary>
+    public bool Watch { get; set; }
 }
 
 /// <summary>An alert as the server holds it: the envelopes it cannot open, and the record of what it did with them.</summary>
@@ -142,6 +168,8 @@ public sealed class SentinelDbContext(DbContextOptions<SentinelDbContext> option
     public DbSet<CorroborationRow> Corroborations => Set<CorroborationRow>();
     public DbSet<DisputeRow> Disputes => Set<DisputeRow>();
     public DbSet<ShownRow> Shown => Set<ShownRow>();
+    public DbSet<PatrolRow> Patrols => Set<PatrolRow>();
+    public DbSet<JourneyPositionRow> JourneyPositions => Set<JourneyPositionRow>();
 }
 
 /// <summary>Where an SMS goes. The server keeps that one was sent and to whom, never what it said (ADR-0004).</summary>
@@ -163,9 +191,9 @@ public sealed class CountingSmsGateway : ISmsGateway
 
 public sealed class Store(SentinelDbContext db, ISmsGateway sms)
 {
-    public async Task<JourneyRow> RegisterJourneyAsync(string id, string account, long expected, int grace, IEnumerable<string> notify, CancellationToken ct)
+    public async Task<JourneyRow> RegisterJourneyAsync(string id, string account, long expected, int grace, IEnumerable<string> notify, CancellationToken ct, bool watch = false)
     {
-        var row = new JourneyRow { Id = id, Account = account, ExpectedMinutes = expected, GraceMinutes = grace, NotifyCsv = string.Join(',', notify) };
+        var row = new JourneyRow { Id = id, Account = account, ExpectedMinutes = expected, GraceMinutes = grace, NotifyCsv = string.Join(',', notify), Watch = watch };
         db.Journeys.Add(row);
         await db.SaveChangesAsync(ct);
         return row;
@@ -174,7 +202,8 @@ public sealed class Store(SentinelDbContext db, ISmsGateway sms)
     /// <summary>The independent escalation (Phase 3): every due journey the phone has said nothing about is escalated by SMS, once.</summary>
     public async Task<int> SweepAsync(long nowMinutes, CancellationToken ct)
     {
-        var due = await db.Journeys.Where(j => !j.Confirmed && !j.Cancelled && j.EscalatedAtMinutes == null).ToListAsync(ct);
+        // A watch is not a journey the server escalates: it ends by itself (ADR-0011).
+        var due = await db.Journeys.Where(j => !j.Watch && !j.Confirmed && !j.Cancelled && j.EscalatedAtMinutes == null).ToListAsync(ct);
         var n = 0;
         foreach (var j in due)
         {

@@ -61,6 +61,36 @@ export function nearDestination(j: Journey, x: number, y: number): boolean {
   return Math.hypot(x - j.destination.x, y - j.destination.y) <= ARRIVAL_GEOFENCE_M;
 }
 
+export const WATCH_MINUTES = 20;
+
+/**
+ * Watch me home (ADR-0011): a journey of twenty minutes with one watcher,
+ * no grace and no escalation, whose positions are sealed to her as they
+ * are taken and which ends by itself at the expected minute. Two watchers
+ * is a group, and a group with a live position is the map this product
+ * refuses; the second name is dropped.
+ */
+export function watch(id: string, nowMinutes: number, watcher: string, label: string): Journey {
+  return {
+    id,
+    startedMinutes: nowMinutes,
+    expectedMinutes: nowMinutes + WATCH_MINUTES,
+    notify: [watcher],
+    liveShare: true,
+    graceMinutes: 0,
+    destination: { x: 0, y: 0, label },
+  };
+}
+
+export function isWatch(j: Journey): boolean {
+  return j.liveShare && j.graceMinutes === 0 && j.notify.length === 1;
+}
+
+/** A watch is over at its expected minute; it never asks and never escalates. */
+export function watchOver(j: Journey, nowMinutes: number): boolean {
+  return isWatch(j) && nowMinutes >= j.expectedMinutes;
+}
+
 /**
  * Whether the battery outlasts the journey (ADR-0006 #4): the app says so at
  * the start, and says the server escalates regardless.
