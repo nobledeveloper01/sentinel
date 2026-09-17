@@ -1,0 +1,28 @@
+/* The organisation console: calm, dark, one column. The same night palette
+   as the phone (DESIGN.md), with no red anywhere — a guard house at night
+   does not need a screen that shouts. */
+:root {
+  color-scheme: dark;
+  --wash: #0b1220;
+  --glass: rgba(255, 255, 255, 0.06);
+  --hairline: rgba(255, 255, 255, 0.14);
+  --text: #eef2f7;
+  --secondary: #a9b4c4;
+  --accent: #2fb8a6;
+  --attention: #e8b34a;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--wash); color: var(--text); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 44rem; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+h1 { font-size: 1.6rem; margin: 0 0 0.25rem; }
+h2 { font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
+p.muted, span.muted { color: var(--secondary); }
+.card { background: var(--glass); border: 1px solid var(--hairline); border-radius: 12px; padding: 0.9rem 1rem; margin: 0.5rem 0; }
+.row { display: flex; gap: 0.75rem; align-items: center; justify-content: space-between; }
+button, input { font: inherit; min-height: 44px; border-radius: 10px; border: 1px solid var(--hairline); background: var(--glass); color: var(--text); padding: 0 0.9rem; }
+button.primary { background: var(--accent); color: #041016; border-color: transparent; }
+button:disabled { opacity: 0.5; }
+input { width: 100%; }
+.attention { color: var(--attention); }
+.fine { color: var(--accent); }
+ul { padding-left: 1.2rem; }
