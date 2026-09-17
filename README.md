@@ -295,6 +295,16 @@ list of who to tell, envelopes as nonce and ciphertext, attempts as channel,
 recipient and outcome. The SMS gateway is an interface whose logging
 implementation keeps that a message went and to whom, never the text.
 
+### `apps/web` — the organisation's console
+
+One HTML file and one module, no framework: an estate's guard house with its
+own token sees the opt-ins waiting for it, the alerts sealed to it and
+whether it acknowledged, and its own patrol lines — and never a position,
+which is in an envelope on the phone that holds the key
+([ADR-0009](docs/adr/0009-the-ladder-has-three-rungs-and-the-second-is-an-organisation-you-chose.md)).
+The rules that are not arrangement are in `console.ts`, where a test holds
+the shape of an alert to *when* and *whether we acknowledged*.
+
 ---
 
 ## 5. Quick start
@@ -431,7 +441,8 @@ packages/crypto/                the envelope and the phone hash; the server-cann
 apps/mobile/src/design/         tokens (DESIGN.md as code) and the theme
 apps/mobile/src/components/     the mesh, the glass, the two actions, the text
 apps/mobile/src/screens/        the welcome, the home, the alert, the circle, the journey, settings, the lock,
-                                the feed within reach, the report with its explainer
+                                the feed within reach, the report with its explainer; the watch, my places,
+                                the organisation opt-in, the data-request page
 apps/mobile/src/community.ts    the public path's client: the screen on the phone, then the server's
 apps/mobile/src/geo.ts          degrees to the metres the reach engine is written in
 apps/mobile/src/components/HoldToCancel.tsx  two fingers, two seconds; PinPad.tsx — digits hashed before anything sees them
@@ -441,18 +452,20 @@ apps/mobile/src/keystore.ts     the device keys from the platform's store, or fo
 apps/mobile/src/native/         the SentinelSecrets spec; the Swift and Kotlin halves are under ios/ and android/
 apps/mobile/src/transport.ts    the wire; and a server in memory a test can search
 apps/mobile/src/phrases.ts      every word the app says
+apps/web/                       the organisation's console: one module, and the rules a test holds
 apps/mobile/__tests__/          the contrast pairs; the home to the alert and back;
                                 the circle and the journey; an evening through the reducer
-server/src/Sentinel.Domain/     reach, the escalation plan and the screen, in C#
+server/src/Sentinel.Domain/     reach, the escalation plan, the screen and advisory, in C#
 server/src/Sentinel.Infrastructure/  the store, the SMS gateway interface, and Community — reach computed per report
 server/src/Sentinel.Api/        the endpoints; Messages.cs is read by the copy gate
 server/tests/                   parity over the fixture; the server cannot read
 fixtures/reach.json             what the TypeScript said about 200 worlds, for the C# to agree with
 fixtures/screen.json            what it said about 135 texts, for the same reason
 fixtures/categories.json        the closed list and its hours
+fixtures/advisory.json          120 generated cells: the hours each speaks, or its silence
 scripts/                        the gates: boundary, doc, copy, design, mark, counts, fixtures;
                                 verify-record.py — the export checked with nothing but Python
-docs/adr/                       the eight decisions, and the six things refused
+docs/adr/                       the thirteen decisions, and the six things refused
 ```
 
 ---
@@ -464,32 +477,33 @@ machine and in CI; the envelope, the circle screen with *who can see me* and
 the journey screen with its plan shown before it starts are built on top of
 it.
 
-**18 domain tests including the 800-world reach property, 8 crypto tests
+**24 domain tests including the 800-world reach property, 8 crypto tests
 including the server-cannot-open proof and the export verified under Python,
-181 app tests including 146 contrast
+186 app tests including 146 contrast
 pairs, an evening against a server in memory and the cancel a coercer cannot
-perform, 17 server tests including the cannot-read proof, reach and screen and
-category parity, the 500 m ceiling on the running server, and the appeal
-held until a named reviewer approves it.**
+perform, 22 server tests including the cannot-read proof, reach and screen and
+category and advisory parity, the 500 m ceiling on the running server, the
+appeal held until a named reviewer approves it, and the organisation's console
+seeing acknowledgement and nothing else; 3 console tests.**
 
 | | |
 |---|---|
 | Phase | 1 of 8 |
-| ADRs | 8 |
+| ADRs | 13 |
 | Things beyond the plan | 30 built or scheduled, 6 refused (ADR-0006) |
 | Gates | 8 blocking `make ci`; 8 needing hardware, people or a city |
 
 | Phase | State |
 | --- | --- |
 | **0** Foundation | Built and green in CI; the Critical Alerts application (R5) is a form to Apple |
-| **1** Crypto and the circle | **current** — the envelope, the relay that seals an alert to every accepted member, the circle screen and *who can see me*; the device keys in the Keychain on iOS and EncryptedSharedPreferences on Android, both compiled in CI, neither yet watched survive a reboot on a handset |
+| **1** Crypto and the circle | **current** — the envelope, the relay that seals an alert to every accepted member, the circle screen and *who can see me*; the device keys in the Keychain on iOS and EncryptedSharedPreferences on Android, both compiled in CI, neither yet watched survive a reboot on a handset. Since 2026-09-17 a member can be an organisation the person opted into, on the ladder's second rung ([ADR-0009](docs/adr/0009-the-ladder-has-three-rungs-and-the-second-is-an-organisation-you-chose.md)) |
 | **2** The panic path | The record, the honest delivery state and the server channel are built; the position, every trigger path and the other channels need a handset (R1, R2, R4) |
-| **3** Safe arrival | The plan, the states, the geofence, the server's timer and the screen that shows the plan before it starts are built and tested; the phone-off gate (R3) needs a phone |
-| **4** Trust surfaces → v1.0 | Duress, the two-finger cancel, the decoy, silent mode, the privacy card, the signed export and the onboarding that teaches the rules are built; organisations and the audit on hardware are to build |
+| **3** Safe arrival | The plan, the states, the geofence, the server's timer and the screen that shows the plan before it starts are built and tested; journey templates and safe places kept on the phone ([ADR-0010](docs/adr/0010-places-the-phone-keeps-are-never-sent.md)); *watch me home* with one watcher and positions sealed to her ([ADR-0011](docs/adr/0011-watch-me-home-is-a-journey-with-one-watcher-and-an-end-it-keeps-itself.md)); the phone-off gate (R3) needs a phone |
+| **4** Trust surfaces → v1.0 | Duress, the two-finger cancel, the decoy, silent mode, the privacy card, the signed export, the onboarding that teaches the rules, the ladder drawn, the organisation's opt-in and receipt of an alert, and the data-request page ([ADR-0013](docs/adr/0013-the-data-request-policy-is-a-page-in-the-app.md)) are built; the audit on hardware and the outside reading (R7) remain |
 | **5** The reach engine | **Built and property-tested**, ahead of order, because the riskiest surface should have the most tested rule behind it |
 | **6** Content screening | The rules run on the phone and on the server, held to each other by a fixture of 135 texts; the model beyond the rules and the face check need a corpus and a camera |
 | **7** The community layer → v1.1 | The code is built last, as planned — the feed within reach, the report with the explainer, corroborate, dispute, withdraw with its audience, the organisation console and the review queue — and held behind three gates and a month in one city (R6, R7) |
-| **8** Advisory → v1.2 | The five-language SMS is built; advisory and patrol logging are not |
+| **8** Advisory → v1.2 | The five-language SMS, advisory as a place and hours above thresholds held to the phone by a fixture, patrol logging and the organisation's web console ([ADR-0012](docs/adr/0012-advisory-is-places-and-hours-and-a-patrol-is-a-line-an-organisation-writes.md)) are built; the native speakers are the gate |
 
 ### What is open, and why it matters
 

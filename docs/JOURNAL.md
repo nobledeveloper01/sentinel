@@ -229,3 +229,54 @@ approved appeal to reach as `reported`; the reach rules say one verified
 organisation makes `confirmed`, and 5 km. The test was wrong and the engine
 right, which is the direction to be wrong in — the rule has 800 worlds
 behind it and the test had me.
+
+## 2026-09-17 — the code that was left
+
+**Did.** Went through ADR-0006's thirty and the roadmap for what was code
+and not a handset, a person or a city, and found five: the escalation ladder
+with an organisation on its second rung, journey templates and safe places,
+watch me home, route advisory with patrol logging, and the data-request page.
+Five ADRs first, then the domain, the server with a parity fixture for
+advisory, the phone, and a console for the organisation. 24 domain, 22
+server, 186 app and 3 console tests; every gate green.
+
+### What surprised us
+
+**The organisation was a reviewer, not a rung.** Since the console was built
+it could vouch and decide the one category about a person; nothing sent it
+an alert, because nothing sends an alert to anyone but a member. The shape
+that costs nothing is the right one: an organisation *is* a member, of a
+second kind, and everything a member gets — the envelope, the acknowledgement,
+the removal — it gets by the same code. The console shows acknowledgement and
+nothing else, and the test asserts the wire has no `ciphertext` in it.
+
+**A sweep in one test escalated another test's journey.** The API tests share
+one in-memory store, and the watch test sweeps a hundred minutes ahead to
+prove a watch is left alone; the journey test two files over expected its
+escalation at minute 75 and found 288,100. The factory takes a store name
+now. Isolation that was never needed until a test reached into the future.
+
+**Reports posted backwards in time count as today's.** The rate limit asks
+whether a previous report is within a day of *now*, and a report an hour in
+the future is; the advisory test posted eight reports newest first and the
+third was refused for *too many*. Oldest first, as a real week arrives.
+
+**Everything but `verified` was fine with the copy gate, and it was right.**
+*Verified organisations* tripped the rule that bans the word in copy — it is
+a badge, and a badge is a claim. They are *vouched for*, which is what the
+administrator did.
+
+**Two buttons called Start.** The journey screen's *Start* and a template's
+*Start* shared a name, and the test found both. *Start this one* now; the
+screen-reader user would have found it first.
+
+### Still open
+
+- The hardware and people gates as before: R1–R4, R7, and a city for R6.
+  Nothing on the roadmap is code any more.
+- The organisation's own phone is a phone: it opens envelopes in the same app
+  a person does. There is no organisation face; the console is the desk and
+  the app is the guard's pocket, and whether that holds up is a question for
+  the reading, not for this keyboard.
+- Trigger paths (ADR-0006 #11) and the BLE mesh (#20) are native code that
+  cannot be seen to work without handsets, and were not written blind.

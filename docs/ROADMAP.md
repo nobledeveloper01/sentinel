@@ -63,6 +63,12 @@ verification and opt-in; the guard's receipt of an alert; onboarding that
 teaches the rules; the accessibility audit with the panic action operable
 without sight; battery budgets; the device matrix.
 
+**Built 2026-09-17, the code that was left.** The ladder drawn with its three
+rungs; an organisation opted into as a member of a second kind, accepting from
+its own console and sealed to like anyone (ADR-0009); the data-request page
+in Settings (ADR-0013). The accessibility audit and the battery budget are the
+handset's; the outside reading is R7.
+
 **Exit gate**. *v1.0 ships with no public surface: personal alerting and safe
 arrival only.*
 
@@ -112,6 +118,12 @@ withdrawn and v1.0 ships alone.*
 Route advisory from expired-report aggregates at coarse granularity and with
 minimum thresholds, never a claim about a community; patrol logging; the
 circle's SMS in four more languages; the organisation web console.
+
+**Built 2026-09-17.** Advisory as a place and hours from expired reports,
+above thresholds and otherwise nothing, held to the phone by a fixture of 120
+cells; patrols as lines an organisation writes about itself; the console at
+`apps/web` (ADR-0012). The SMS in five languages was built in Phase 1. What
+remains is a native speaker of each.
 
 **Exit gate**. *Advisory renders nothing below its thresholds; a native speaker
 of each language has read the SMS a circle member receives.*

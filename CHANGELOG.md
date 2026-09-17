@@ -7,6 +7,49 @@ project is pre-release, so everything is under Unreleased until v1.0.
 
 ### Added
 
+- **The ladder has three rungs, and the second is an organisation you chose.**
+  The alert screen draws who is told, in order: your circle, the organisation
+  you opted into, the official numbers above — and never a fourth. An
+  organisation is a member of a second kind: opted into from a list of places
+  somebody vouched for, told nothing until it accepts from its own console,
+  then sealed to like anyone and removed like anyone. Its console shows the
+  opt-ins waiting, the alerts sealed to it and whether it acknowledged, and
+  its own patrol lines. *Abuse model:* an alert to a guard house the person
+  never chose is an alert to strangers, so the opt-in is theirs and the
+  acceptance is mutual; the console never shows a position — it is in an
+  envelope on the phone that holds the key — and a console is a screen in a
+  room anyone can walk past.
+- **Places the phone keeps and never sends.** *Journeys I take often* — kept
+  from a journey with one press, started next time with one — and *places I
+  would go*, listed under the numbers during an alert and offered as
+  destinations. Both on the phone only, counted on the privacy card, lost by
+  a reinstall on purpose. *Abuse model:* the places a person goes and the
+  places they run to are the pattern of a life; the server holds nothing it
+  can read about where anyone is, and this is not the exception. Nothing is
+  ranked or suggested; a safe place is where you said you would go, not a
+  claim that it is safe.
+- **Watch me home.** Twenty minutes, one person, your position as you go
+  sealed to her alone, an end it keeps itself that both phones are told of.
+  No escalation — for that, start a journey, and the screen says so. A phone
+  with no fix seals *no position* rather than nothing, so her screen says
+  *no fix* rather than guessing. *Abuse model:* two watchers is a group, and a
+  group with a live position is the map this product refuses; the second
+  name is dropped by the rule and refused by the server.
+- **Advisory as a place and hours.** *Near you* now carries one sentence when
+  it can — *around here, past reports have mostly been between 21:00 and
+  02:00; about this area, not about anyone in it* — from expired reports
+  pooled across categories, only in a cell with six reports from four
+  accounts in ninety days, and otherwise nothing at all. The same thresholds
+  run on the server, held to the phone by a fixture of 120 generated cells.
+  *Abuse model:* a sparse map of a city is a map of its poorer streets read
+  as a claim about the people who live there; below the thresholds the
+  screen shows nothing, not *no data*, and the sentence never carries a
+  count or a category.
+- **When we are asked for your data**, a page in Settings: what the server
+  holds, in the lines the privacy card derives from state; what it cannot
+  read, with the test that proves it named; what happens when somebody with
+  authority asks. In the words of the code, with no promise about people.
+
 - **The organisation console.** An administrator with `SENTINEL_ADMIN_TOKEN`
   vouches for an organisation — an estate, a company, a station, never a
   person — and a *named* reviewer decides the one category about a person,
