@@ -340,7 +340,11 @@ Xcode's minimum: two numbers that must agree are better kept as one.
 
 ### Still open
 
-- Nine screens captured. The alert in progress and the duress decoy want a run
-  of their own.
+- Thirteen screens captured, including the alert in progress and the duress
+  decoy. Reaching the duress screen meant driving the whole coercion path on
+  the simulator — set two PINs, raise an alert, hold the cancel with two
+  fingers, and enter the *second* PIN — and the thing worth seeing is that the
+  result is a screenshot identical to the ordinary home screen. The feature
+  photographs as nothing, which is exactly what it is for.
 - Nothing here is a hardware result. Panic latency, the trigger paths and the
   abuse model still want a handset, a stopwatch and an outside reader.

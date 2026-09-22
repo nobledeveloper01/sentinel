@@ -5,6 +5,12 @@ project is pre-release, so everything is under Unreleased until v1.0.
 
 ## [Unreleased]
 
+### Added
+
+- Thirteen screenshots from the simulator, covering the alert in progress, the
+  two-finger cancel, and the duress decoy — which looks exactly like the idle
+  home screen, because that is the point of it.
+
 ### Fixed
 
 - **Gradient buttons are the width of the button again.** The primary control

@@ -232,6 +232,27 @@ cancel, and the sentence that says how it is done.
 |---|---|---|
 | ![Settings: your number becomes a code before it leaves the phone, and the two PINs — the second opens a screen that looks idle and tells your circle you were made to](docs/screenshots/02-settings.png) | ![The same screen with a number and a name entered, and Save now enabled](docs/screenshots/03-settings-filled.png) | ![Settings with Large controls on](docs/screenshots/09-large-controls.png) |
 
+| The alert, when nobody can be reached | Ending an alert | Duress opens the decoy |
+|---|---|---|
+| ![The alert screen: your circle could not be reached, call the number above, with the ladder saying who is told and in what order](docs/screenshots/10-alert-could-not-be-reached.png) | ![Ending an alert asks for a PIN on the app's own keypad, after a two-finger hold](docs/screenshots/11-ending-an-alert-asks-for-a-pin.png) | ![The duress PIN ends the alert into the ordinary idle home, which is the point: it looks exactly like a normal cancel](docs/screenshots/12-duress-opens-the-decoy.png) |
+
+| Settings is behind the PIN |
+|---|
+| ![Once a PIN is set, opening Settings asks for it first](docs/screenshots/13-settings-is-behind-the-pin.png) |
+
+**The alert screen above is its honest failure state**, which is the version
+worth showing: there is nobody in the circle yet, so it says so and points at
+the official number rather than implying somebody was told. The ladder beneath
+names who is told and in what order.
+
+**The two on the right are one feature.** Ending an alert takes a two-finger
+hold and then a PIN, on the app's own keypad — a coercer reaching over cannot
+perform it one-handed. Entering the *duress* PIN instead ends the alert into
+the ordinary idle home, and the third picture is deliberately
+indistinguishable from the second row's home screen. That is the design: what
+a person standing over you sees is an app that went back to normal, while the
+circle is told you were made to.
+
 **What the run found.** Three defects that no test could have.
 
 The app **did not start at all**: `crypto.getRandomValues` does not exist in
