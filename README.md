@@ -15,7 +15,7 @@ feed built on one inversion: **reach is earned, not granted.**
 > well-built app travels faster than one on WhatsApp. Every decision in this
 > repository is constrained by that fact, and the abuse model was written
 > before any feature — see [`docs/00-PRODUCT-STATEMENT.md`](docs/00-PRODUCT-STATEMENT.md)
-> and the eight ADRs in [`docs/adr/`](docs/adr/).
+> and the fourteen ADRs in [`docs/adr/`](docs/adr/).
 
 ---
 
@@ -218,8 +218,27 @@ reached* with the instruction to call. Each circle member with *acknowledged*
 or *not yet* beside them, and nothing about where they are. At the bottom, the
 cancel, and the sentence that says how it is done.
 
-Screenshots come with the first simulator run; the Xcode licence on this Mac
-lapsed mid-build.
+### The first simulator run
+
+| Before anything else | Tonight | My circle |
+|---|---|---|
+| ![The welcome screen: the official numbers for your state, first and largest, above the sentence that Sentinel is not a substitute for them](docs/screenshots/01-before-anything-else.png) | ![The home screen: the emergency numbers, then the one gradient control, Alert my circle, and beneath it the journey and the circle](docs/screenshots/03-tonight.png) | ![My circle: nobody yet, and the sentence saying they accept first and either of you can end it at any time without saying why](docs/screenshots/04-my-circle.png) |
+
+| Settings | Near you, with no fix |
+|---|---|
+| ![Settings: your number becomes a code before it leaves the phone, and the two PINs — the second opens a screen that looks idle and tells your circle you were made to](docs/screenshots/02-settings.png) | ![Near you: Sentinel needs to know where you are to show what is near you, and this phone has no fix](docs/screenshots/05-near-you-no-fix.png) |
+
+**What the run found.** Two defects that no test could have: the app did not
+start at all, because `crypto.getRandomValues` does not exist in Hermes and
+every device key begins there ([ADR-0014](docs/adr/0014-randomness-comes-from-the-platform-or-the-app-does-not-start.md));
+and every glass surface rendered as a solid block of accent, because the six
+`glass*` tokens were written `#AARRGGBB` and React Native reads `#RRGGBBAA` —
+so each text field in Settings was opaque cyan with the placeholder
+unreadable on top of it. `design-check` now fails on both orders.
+
+*Nothing on these screens is a record.* The number and name are typed into a
+simulator; no alert has been sent, and none of the trigger paths has met a
+handset with a stopwatch.
 
 ---
 
@@ -489,7 +508,7 @@ seeing acknowledgement and nothing else; 3 console tests.**
 | | |
 |---|---|
 | Phase | 1 of 8 |
-| ADRs | 13 |
+| ADRs | 14 |
 | Things beyond the plan | 30 built or scheduled, 6 refused (ADR-0006) |
 | Gates | 8 blocking `make ci`; 8 needing hardware, people or a city |
 

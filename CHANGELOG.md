@@ -5,6 +5,20 @@ project is pre-release, so everything is under Unreleased until v1.0.
 
 ## [Unreleased]
 
+### Fixed
+
+- **The app now starts.** Every device key begins with random bytes, and the
+  JavaScript runtime React Native uses has no `crypto.getRandomValues`, so the
+  first render threw before anything was drawn. Randomness now comes from the
+  platform's own CSPRNG, with no JavaScript fallback: a product whose keys
+  could be predicted is worse than one that will not launch (ADR-0014).
+- **Glass surfaces are glass again.** Six colour tokens were written with the
+  alpha channel at the front, which React Native reads as the colour — so
+  every text field and card rendered as a solid block of accent with the text
+  on it unreadable. Both the design gate and the contrast test parsed them the
+  same wrong way, so all three agreed on a colour that was never on screen.
+  All three now read `#RRGGBBAA`, and the gate refuses the other order.
+
 ### Added
 
 - **The ladder has three rungs, and the second is an organisation you chose.**

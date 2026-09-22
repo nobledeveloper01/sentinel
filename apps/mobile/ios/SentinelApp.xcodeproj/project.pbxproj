@@ -11,9 +11,9 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		34D22FB8BD1E42C5A0A31C8E /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 89D42C883BE9458BB2D8C095 /* Inter-Medium.ttf */; };
 		42A8EFFE850A47ABA6C2F8D6 /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8C4D7FE699614F5C9F5A3E99 /* Inter-SemiBold.ttf */; };
-		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		5E7A0002000000000000000A /* SentinelSecrets.m in Sources */ = {isa = PBXBuildFile; fileRef = 5E7A0001000000000000000A /* SentinelSecrets.m */; };
 		5E7A0002000000000000000B /* SentinelSecrets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7A0001000000000000000B /* SentinelSecrets.swift */; };
+		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		9AD22C927197A51926A985B0 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		D3F1A63351B9403EAF83DB59 /* Inter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 572F23F6F0D2426B922A1EC6 /* Inter-Bold.ttf */; };
@@ -30,9 +30,9 @@
 		5709B34CF0A7D63546082F79 /* Pods-SentinelApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SentinelApp.release.xcconfig"; path = "Target Support Files/Pods-SentinelApp/Pods-SentinelApp.release.xcconfig"; sourceTree = "<group>"; };
 		572F23F6F0D2426B922A1EC6 /* Inter-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Bold.ttf"; path = "../assets/fonts/Inter-Bold.ttf"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-SentinelApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SentinelApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = SentinelApp/AppDelegate.swift; sourceTree = "<group>"; };
 		5E7A0001000000000000000A /* SentinelSecrets.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SentinelSecrets.m; path = SentinelApp/SentinelSecrets.m; sourceTree = "<group>"; };
 		5E7A0001000000000000000B /* SentinelSecrets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SentinelSecrets.swift; path = SentinelApp/SentinelSecrets.swift; sourceTree = "<group>"; };
+		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = SentinelApp/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = SentinelApp/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89D42C883BE9458BB2D8C095 /* Inter-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-Medium.ttf"; path = "../assets/fonts/Inter-Medium.ttf"; sourceTree = "<group>"; };
 		8C4D7FE699614F5C9F5A3E99 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter-SemiBold.ttf"; path = "../assets/fonts/Inter-SemiBold.ttf"; sourceTree = "<group>"; };

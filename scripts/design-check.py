@@ -1,6 +1,16 @@
 #!/usr/bin/env python3
 """DESIGN.md and tokens.ts hold the same palette; no colour literal lives
-anywhere else in the app; and no token is red (ADR-0005)."""
+anywhere else in the app; no token is red (ADR-0005); and every colour that
+carries alpha is written the way React Native reads it.
+
+That last one is here because it was not, and the app shipped six tokens as
+`#AARRGGBB` — the Android order. React Native reads `#RRGGBBAA`, so
+`glassMid: '#B3FFFFFF'`, meant as white at 70%, rendered as opaque cyan: every
+text field in Settings was a solid block of accent with the placeholder
+unreadable on top of it. Nothing caught it, because this gate only ever
+compared two files to each other and both were wrong in the same way. It took
+running the app.
+"""
 import re
 import sys
 from pathlib import Path
@@ -25,9 +35,19 @@ def main() -> int:
     for h in sorted(code_hex - doc_hex):
         print(f"{RED}✗{OFF} tokens.ts has #{h} and DESIGN.md does not"); bad += 1
     for h in sorted(code_hex):
-        six = h[-6:]
-        if is_red(six):
+        # `#RRGGBBAA`: the colour is the first six digits, whatever follows.
+        # This read the last six, which is only right in the order React
+        # Native does not use.
+        if is_red(h[:6]):
             print(f"{RED}✗{OFF} #{h} is red, and there is no red (ADR-0005)"); bad += 1
+
+    # Alpha is written last, and a `glass` surface is white with alpha.
+    for name, value in re.findall(r"(\w+)\s*:\s*'#([0-9A-Fa-f]{8})'", tokens):
+        rgb, alpha = value[:6].upper(), int(value[6:], 16)
+        if alpha == 255:
+            print(f"{RED}✗{OFF} {name} is #{value}, eight digits ending in FF — if that is meant to be opaque, write six; if the alpha is at the front, React Native will read it as the colour"); bad += 1
+        if name.startswith("glass") and rgb != "FFFFFF":
+            print(f"{RED}✗{OFF} {name} is #{value}: a glass surface is white with alpha, and React Native reads #RRGGBBAA — this says the colour is #{rgb}"); bad += 1
     if re.search(r"^\s*danger\s*:", tokens, re.M):
         print(f"{RED}✗{OFF} a `danger` token exists; ADR-0005 says there is none"); bad += 1
     for f in sorted((ROOT / "apps/mobile/src").rglob("*.ts*")):
@@ -39,7 +59,7 @@ def main() -> int:
     if bad:
         print(f"{RED}design gate failed{OFF}")
         return 1
-    print(f"{GRN}✓{OFF} DESIGN.md and tokens.ts agree on {len(code_hex)} colours; none is red; none lives elsewhere")
+    print(f"{GRN}✓{OFF} DESIGN.md and tokens.ts agree on {len(code_hex)} colours; none is red; every alpha is written last; none lives elsewhere")
     return 0
 
 

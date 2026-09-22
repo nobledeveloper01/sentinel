@@ -19,6 +19,7 @@
     "@sentinel/domain": "workspace:*",
     "react": "19.2.3",
     "react-native": "0.87.1",
+    "react-native-get-random-values": "^2.0.0",
     "react-native-safe-area-context": "^5.7.0",
     "react-native-screens": "^4.20.0",
     "react-native-svg": "^15.14.0"

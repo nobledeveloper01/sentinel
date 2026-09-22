@@ -30,9 +30,9 @@ in Settings, and the platform's Reduce Motion, are read at act time.
 | `washStart` | `#E8F1F6` | `#0A1A2B` | The mesh's first stop |
 | `washEnd` | `#EEF0F8` | `#0F1F2E` | The mesh's second stop |
 | `washTeal` | `#DCEEF2` | `#0C2B33` | The mesh's teal bloom |
-| `glassLow` | `#8CFFFFFF` | `#0FFFFFFF` | A card in a list |
-| `glassMid` | `#B3FFFFFF` | `#1AFFFFFF` | A control |
-| `glassHigh` | `#D9FFFFFF` | `#29FFFFFF` | A sheet, the lock, the decoy |
+| `glassLow` | `#FFFFFF8C` | `#FFFFFF0F` | A card in a list |
+| `glassMid` | `#FFFFFFB3` | `#FFFFFF1A` | A control |
+| `glassHigh` | `#FFFFFFD9` | `#FFFFFF29` | A sheet, the lock, the decoy |
 | `solidLow` | `#F6F8FB` | `#132131` | Twin of `glassLow` |
 | `solidMid` | `#FFFFFF` | `#1A2B3D` | Twin of `glassMid` |
 | `solidHigh` | `#FFFFFF` | `#22364B` | Twin of `glassHigh` |

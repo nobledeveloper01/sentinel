@@ -7,8 +7,14 @@ import { palette } from '../src/design/tokens';
 
 function rgb(hex: string): [number, number, number, number] {
   const h = hex.replace('#', '');
-  const a = h.length === 8 ? parseInt(h.slice(0, 2), 16) / 255 : 1;
-  const s = h.length === 8 ? h.slice(2) : h;
+  // `#RRGGBBAA` — the colour first, the alpha last, which is the only order
+  // React Native reads. This took the alpha off the front and the colour off
+  // the back, so every assertion below was computed for a colour that was
+  // never on the screen: `glassMid` was checked as white at 70% while the app
+  // rendered it as opaque cyan. The tokens were wrong the same way, so the
+  // two agreed and the suite stayed green.
+  const a = h.length === 8 ? parseInt(h.slice(6, 8), 16) / 255 : 1;
+  const s = h.length === 8 ? h.slice(0, 6) : h;
   return [parseInt(s.slice(0, 2), 16), parseInt(s.slice(2, 4), 16), parseInt(s.slice(4, 6), 16), a];
 }
 function over(top: string, under: [number, number, number]): [number, number, number] {
