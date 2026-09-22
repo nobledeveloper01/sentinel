@@ -220,21 +220,36 @@ cancel, and the sentence that says how it is done.
 
 ### The first simulator run
 
-| Before anything else | Tonight | My circle |
+| Before anything else | Tonight | Start a journey |
 |---|---|---|
-| ![The welcome screen: the official numbers for your state, first and largest, above the sentence that Sentinel is not a substitute for them](docs/screenshots/01-before-anything-else.png) | ![The home screen: the emergency numbers, then the one gradient control, Alert my circle, and beneath it the journey and the circle](docs/screenshots/03-tonight.png) | ![My circle: nobody yet, and the sentence saying they accept first and either of you can end it at any time without saying why](docs/screenshots/04-my-circle.png) |
+| ![The welcome screen: the official numbers for your state, first and largest, above the sentence that Sentinel is not a substitute for them](docs/screenshots/01-before-anything-else.png) | ![The home screen: the emergency numbers, then the one gradient control, Alert my circle, and beneath it the journey and the circle](docs/screenshots/04-tonight.png) | ![Start a journey: where and when, who is told if you do not confirm, and a card saying what happens — including that it happens even if the phone dies or has no signal](docs/screenshots/05-start-a-journey.png) |
 
-| Settings | Near you, with no fix |
-|---|---|
-| ![Settings: your number becomes a code before it leaves the phone, and the two PINs — the second opens a screen that looks idle and tells your circle you were made to](docs/screenshots/02-settings.png) | ![Near you: Sentinel needs to know where you are to show what is near you, and this phone has no fix](docs/screenshots/05-near-you-no-fix.png) |
+| Watch me home | My circle | Near you, with no fix |
+|---|---|---|
+| ![Watch me home: twenty minutes, one person, your position sealed to her alone, ending by itself — and no escalation, for which it points at a journey](docs/screenshots/06-watch-me-home.png) | ![My circle: nobody yet, and the sentence saying they accept first and either of you can end it at any time, without saying why](docs/screenshots/07-my-circle.png) | ![Near you: Sentinel needs to know where you are to show what is near you, and this phone has no fix](docs/screenshots/08-near-you.png) |
 
-**What the run found.** Two defects that no test could have: the app did not
-start at all, because `crypto.getRandomValues` does not exist in Hermes and
-every device key begins there ([ADR-0014](docs/adr/0014-randomness-comes-from-the-platform-or-the-app-does-not-start.md));
-and every glass surface rendered as a solid block of accent, because the six
+| Settings | Settings, filled in | Large controls |
+|---|---|---|
+| ![Settings: your number becomes a code before it leaves the phone, and the two PINs — the second opens a screen that looks idle and tells your circle you were made to](docs/screenshots/02-settings.png) | ![The same screen with a number and a name entered, and Save now enabled](docs/screenshots/03-settings-filled.png) | ![Settings with Large controls on](docs/screenshots/09-large-controls.png) |
+
+**What the run found.** Three defects that no test could have.
+
+The app **did not start at all**: `crypto.getRandomValues` does not exist in
+Hermes and every device key begins there
+([ADR-0014](docs/adr/0014-randomness-comes-from-the-platform-or-the-app-does-not-start.md)).
+
+Every glass surface **rendered as a solid block of accent**, because the six
 `glass*` tokens were written `#AARRGGBB` and React Native reads `#RRGGBBAA` —
-so each text field in Settings was opaque cyan with the placeholder
-unreadable on top of it. `design-check` now fails on both orders.
+so each text field in Settings was opaque cyan with the placeholder unreadable
+on top of it. `design-check` and `contrast.test.ts` both parsed them the same
+wrong way, so all three agreed on a colour that was never on the screen. All
+three read `#RRGGBBAA` now, and the gate refuses the other order.
+
+And **every gradient button stopped about 86% of the way across** while its
+label stayed centred on the full width, so the primary control on each screen
+read as one that had not finished drawing. The gradient is an SVG pinned with
+`absoluteFill`, and it also carried `width="100%" height="100%"`; the two
+fight, and react-native-svg resolved them to a box narrower than the button.
 
 *Nothing on these screens is a record.* The number and name are typed into a
 simulator; no alert has been sent, and none of the trigger paths has met a

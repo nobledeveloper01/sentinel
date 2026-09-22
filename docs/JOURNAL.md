@@ -280,3 +280,67 @@ screen-reader user would have found it first.
   the reading, not for this keyboard.
 - Trigger paths (ADR-0006 #11) and the BLE mesh (#20) are native code that
   cannot be seen to work without handsets, and were not written blind.
+
+## 2026-09-22 — The first simulator run
+
+### What we did
+
+Built and ran the app on a simulator for the first time, fixed the three
+defects that run exposed, strengthened the two guards that should have caught
+one of them, and captured nine screenshots.
+
+### What surprised us
+
+**The app had never started.** Every device key begins with random bytes,
+`@noble/*` asks `crypto.getRandomValues` for them, and Hermes does not have
+it — so the first render threw before anything was drawn. The domain tests
+never saw it, because Node has Web Crypto and because every crypto function
+takes an injectable `random` the tests supply. The one call site that does not
+inject is `keystore.ts`, which mints the device's own keys at launch, and that
+only runs on a device. Fixed with the platform CSPRNG and **no fallback**
+(ADR-0014): a security product that will not start is a bug; one that starts
+with predictable keys is a breach, and the failure has to be the first.
+
+**Three files agreed on a colour that was never on the screen.** The six
+`glass*` tokens were written `#AARRGGBB` — the Android order. React Native
+reads `#RRGGBBAA`, so `glassMid: '#B3FFFFFF'`, meant as white at 70%,
+rendered as opaque cyan: every text field in Settings was a solid block of
+accent with the placeholder unreadable on top of it.
+
+The second half is the part worth keeping. `design-check` compared DESIGN.md
+against tokens.ts and they matched — both were wrong the same way. And
+`contrast.test.ts` took the alpha off the front and the colour off the back,
+so it computed the contrast of white at 70%, asserted it passed, and was right
+about a colour the app never drew. **Two guards, one blind spot, and 186 green
+tests over a surface nobody would ever see.** All three read `#RRGGBBAA` now;
+`design-check` gained two rules — an eight-digit token ending in `FF` is
+refused, and a `glass*` token whose RGB is not white is refused — and was
+broken on purpose with the original value and watched to fail on both before
+being put back.
+
+**A third one a person saw and I did not.** Every gradient button painted
+about 86% of the way across. I had already captured five screenshots with the
+defect in them and not registered it, because the label stays centred on the
+*full* width — so the control looks deliberate until you notice its right edge
+does not line up with the glass button directly beneath it. The gradient is an
+SVG pinned by `absoluteFill` that also carried `width="100%" height="100%"`;
+absoluteFill pins left and right, the props set an explicit width, and
+react-native-svg resolved the pair to a box narrower than the button.
+
+The lesson is not about SVG. Reading a screen is a different act from testing
+one, and neither replaces the other — I had run the tests and looked at the
+pictures, and it still took somebody else saying *the buttons are not
+complete*.
+
+**A build fix that was not ours to leave.** CocoaPods writes the pods project's
+deployment floor from the oldest any pod declares — 12.4 — and Xcode 27 refuses
+anything below 15, so the generated project would not compile at all. The
+`post_install` hook raises every pod to the app's own floor rather than to
+Xcode's minimum: two numbers that must agree are better kept as one.
+
+### Still open
+
+- Nine screens captured. The alert in progress and the duress decoy want a run
+  of their own.
+- Nothing here is a hardware result. Panic latency, the trigger paths and the
+  abuse model still want a handset, a stopwatch and an outside reader.

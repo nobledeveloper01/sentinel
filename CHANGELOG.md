@@ -7,6 +7,11 @@ project is pre-release, so everything is under Unreleased until v1.0.
 
 ### Fixed
 
+- **Gradient buttons are the width of the button again.** The primary control
+  on every screen painted its gradient about 86% of the way across while its
+  label stayed centred on the full width, so it read as a control that had not
+  finished drawing.
+
 - **The app now starts.** Every device key begins with random bytes, and the
   JavaScript runtime React Native uses has no `crypto.getRandomValues`, so the
   first render threw before anything was drawn. Randomness now comes from the

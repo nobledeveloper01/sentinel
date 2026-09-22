@@ -37,7 +37,15 @@ export function PrimaryAction({
       delayLongPress={1500}
       style={({ pressed }) => [styles.primary, { minHeight: target[size], opacity: disabled ? 0.5 : pressed ? 0.85 : 1 }]}
     >
-      <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 100 100">
+      {/*
+        Sized by `absoluteFill` alone. It also carried width="100%"
+        height="100%", and those fight it: absoluteFill pins left and right,
+        the props set an explicit width, and react-native-svg resolved the
+        pair to a box narrower than the button — so the gradient stopped
+        about 86% of the way across while the label stayed centred on the
+        full width. It read as a button that had not finished drawing.
+      */}
+      <Svg style={StyleSheet.absoluteFill} preserveAspectRatio="none" viewBox="0 0 100 100">
         <Defs>
           <LinearGradient id="brand" x1="0" y1="0" x2="1" y2="0">
             <Stop offset="0" stopColor={c.accent} />
